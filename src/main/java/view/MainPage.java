@@ -40,25 +40,28 @@ public class MainPage extends JFrame {
         memberNameLabel.setForeground(Color.WHITE);
         memberNameLabel.setBounds(10, 10, 300, 20); // Displayed at the top-left corner
         backgroundPanel.add(memberNameLabel);
+        
+        // center the operations panel dynamically
+        int panelWidth = 250;  
+        int panelHeight = 150;
+
+        // calculate position to center the panel in the frame
+        int xPosition = (getWidth() - panelWidth) / 2;
+        int yPosition = (getHeight() - panelHeight) / 2;
+
 
         // Operations Panel
         JPanel operationsPanel = new JPanel();
-        operationsPanel.setLayout(new GridLayout(3, 2, 10, 10));
-        operationsPanel.setBounds(150, 150, 500, 300);
+        operationsPanel.setLayout(new GridLayout(3, 1, 10, 10));
+        operationsPanel.setBounds(xPosition, yPosition, panelWidth, panelHeight);
         operationsPanel.setOpaque(false);
 
         // Buttons for operations
-        JButton manageBooksButton = new JButton("Manage Books");
-        JButton manageAuthorsButton = new JButton("Manage Authors");
-        JButton manageMembersButton = new JButton("Manage Members");
         JButton borrowBookButton = new JButton("Borrow a Book");
         JButton returnBookButton = new JButton("Return a Book");
         JButton logoutButton = new JButton("Logout");
 
         // Add Action Listeners
-        manageBooksButton.addActionListener(e -> showMessage("Manage Books"));
-        manageAuthorsButton.addActionListener(e -> showMessage("Manage Authors"));
-        manageMembersButton.addActionListener(e -> showMessage("Manage Members"));
         borrowBookButton.addActionListener(e -> showMessage("Borrow a Book"));
         returnBookButton.addActionListener(e -> showMessage("Return a Book"));
         logoutButton.addActionListener(e -> {
@@ -68,9 +71,6 @@ public class MainPage extends JFrame {
         });
 
         // Add buttons to the panel
-        operationsPanel.add(manageBooksButton);
-        operationsPanel.add(manageAuthorsButton);
-        operationsPanel.add(manageMembersButton);
         operationsPanel.add(borrowBookButton);
         operationsPanel.add(returnBookButton);
         operationsPanel.add(logoutButton);
