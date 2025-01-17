@@ -35,7 +35,7 @@ public class MainPage extends JFrame {
         backgroundPanel.add(welcomeLabel);
 
         // Display Member's Name
-        JLabel memberNameLabel = new JLabel("Logged in as: " + member.getName() + " " + member.getLastName());
+        JLabel memberNameLabel = new JLabel("Logged in as: " + member.getFirstname() + " " + member.getLastName());
         memberNameLabel.setFont(new Font("Arial", Font.PLAIN, 16));
         memberNameLabel.setForeground(Color.WHITE);
         memberNameLabel.setBounds(10, 10, 300, 20); // Displayed at the top-left corner

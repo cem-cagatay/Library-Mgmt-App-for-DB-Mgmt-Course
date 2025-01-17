@@ -1,73 +1,101 @@
 package domain;
+
 public class Book {
-    private String isbn;
-    private String title;
-    private int publicationYear;
-    private String category;     // Category as String
-    private Author author;     // Reference to Author
-    private int totalCopies;
-    private int availableCopies;
+
+    private String book_id;        
+    private String author_id;     
+    private int publish_year;     
+    private String title;        
+    private String subject;      
+    private int totalCopies;       
+    private int availableCopies;       
+
+
+    public Book() {
+    }
+
+
+	public Book(String book_id, String author_id, int publish_year, String title, String subject, int totalCopies,
+			int availableCopies) {
+		super();
+		this.book_id = book_id;
+		this.author_id = author_id;
+		this.publish_year = publish_year;
+		this.title = title;
+		this.subject = subject;
+		this.totalCopies = totalCopies;
+		this.availableCopies = availableCopies;
+	}
+
+
+	public String getBook_id() {
+		return book_id;
+	}
+
+
+	public void setBook_id(String book_id) {
+		this.book_id = book_id;
+	}
+
+
+	public String getAuthor_id() {
+		return author_id;
+	}
+
+
+	public void setAuthor_id(String author_id) {
+		this.author_id = author_id;
+	}
+
+
+	public int getPublish_year() {
+		return publish_year;
+	}
+
+
+	public void setPublish_year(int publish_year) {
+		this.publish_year = publish_year;
+	}
+
+
+	public String getTitle() {
+		return title;
+	}
+
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+
+	public String getSubject() {
+		return subject;
+	}
+
+
+	public void setSubject(String subject) {
+		this.subject = subject;
+	}
+
+
+	public int getTotalCopies() {
+		return totalCopies;
+	}
+
+
+	public void setTotalCopies(int totalCopies) {
+		this.totalCopies = totalCopies;
+	}
+
+
+	public int getAvailableCopies() {
+		return availableCopies;
+	}
+
+
+	public void setAvailableCopies(int availableCopies) {
+		this.availableCopies = availableCopies;
+	}
     
-
-    // Constructors
-    public Book(String isbn, String title, int publicationYear,
-                String category, String authorId, int totalCopies) {
-        this.isbn = isbn;
-        this.title = title;
-        this.publicationYear = publicationYear;
-        this.category = category;
-        this.author = author;
-        this.totalCopies = totalCopies;
-        this.availableCopies = totalCopies;
-    }
-
-    // Getters and Setters
-    public String getIsbn() { return isbn; }
-    public void setIsbn(String isbn) { this.isbn = isbn; }
-
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
-
-    public int getPublicationYear() { return publicationYear; }
-    public void setPublicationYear(int publicationYear) { this.publicationYear = publicationYear; }
-
-  
-
-    public String getCategory() { return category; }
-    public void setCategory(String category) { this.category = category; }
-
-    public Author getAuthor() { return author; }
-    public void setAuthor(Author author) { this.author = author; }
-
-    public int getTotalCopies() { return totalCopies; }
-    public void setTotalCopies(int totalCopies) { 
-        this.totalCopies = totalCopies; 
-        if(this.availableCopies > totalCopies){
-            this.availableCopies = totalCopies;
-        }
-    }
-
-    public int getAvailableCopies() { return availableCopies; }
-    public void setAvailableCopies(int availableCopies) { this.availableCopies = availableCopies; }
-
-    // Methods to manage copies
-    public boolean isAvailable() {
-        return availableCopies > 0;
-    }
-
-    public void borrowCopy() {
-        if (isAvailable()) {
-            availableCopies--;
-        } else {
-            throw new IllegalStateException("No available copies to borrow.");
-        }
-    }
-
-    public void returnCopy() {
-        if (availableCopies < totalCopies) {
-            availableCopies++;
-        } else {
-            throw new IllegalStateException("All copies are already in the library.");
-        }
-    }
 }
+

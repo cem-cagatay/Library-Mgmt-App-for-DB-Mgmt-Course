@@ -1,32 +1,46 @@
 package domain;
 
 public class Member {
-    private int memberId;
-    private String username;
-    private String name;
+    private int member_id;
+    private String firstname;
     private String lastName;
     private String email;
-
-    // Constructors
-    public Member(int memberId, String name, String lastName, String email) {
-        this.memberId = memberId;
-        this.name = name;
-        this.lastName = lastName;
-        this.email = email;
-    }
-
-    // Getters and Setters
-    public int getMemberId() { return memberId; }
-    public void setMemberId(int memberId) { this.memberId = memberId; }
-
-    public String getLastName() { return lastName; }
-    public void setLastnameName(String lastname) { this.lastName = lastname; }
-
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+   
+    
+	public Member(int member_id, String firstname, String lastName, String email) {
+		super();
+		this.member_id = member_id;
+		this.firstname = firstname;
+		this.lastName = lastName;
+		this.email = email;
+		
+	}
+	public int getMember_id() {
+		return member_id;
+	}
+	public void setMember_id(int member_id) {
+		this.member_id = member_id;
+	}
+	public String getFirstname() {
+		return firstname;
+	}
+	public void setFirstname(String firstname) {
+		this.firstname = firstname;
+	}
+	public String getLastName() {
+		return lastName;
+	}
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
+	}
+    
+    
 
 }
 
