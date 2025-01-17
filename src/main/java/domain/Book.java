@@ -3,7 +3,6 @@ public class Book {
     private String isbn;
     private String title;
     private int publicationYear;
-    private Publisher publisher; // Many-to-One relationship
     private String category;     // Category as String
     private Author author;     // Reference to Author
     private int totalCopies;
@@ -11,12 +10,11 @@ public class Book {
     
 
     // Constructors
-    public Book(String isbn, String title, int publicationYear, Publisher publisher,
+    public Book(String isbn, String title, int publicationYear,
                 String category, String authorId, int totalCopies) {
         this.isbn = isbn;
         this.title = title;
         this.publicationYear = publicationYear;
-        this.publisher = publisher;
         this.category = category;
         this.author = author;
         this.totalCopies = totalCopies;
@@ -33,8 +31,7 @@ public class Book {
     public int getPublicationYear() { return publicationYear; }
     public void setPublicationYear(int publicationYear) { this.publicationYear = publicationYear; }
 
-    public Publisher getPublisher() { return publisher; }
-    public void setPublisher(Publisher publisher) { this.publisher = publisher; }
+  
 
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }
