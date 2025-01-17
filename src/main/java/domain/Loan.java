@@ -5,16 +5,16 @@ import java.time.LocalDate;
 public class Loan {
     private String loanId;
     private String memberId; // Many-to-One relationship
-    private String bookIsbn; // Many-to-One relationship
+    private int copy_id; // Many-to-One relationship
     private LocalDate loanDate;
     private LocalDate dueDate;
     private LocalDate returnDate;
 
     // Constructors
-    public Loan(String loanId, String memberId, String bookIsbn, LocalDate loanDate, LocalDate dueDate) {
+    public Loan(String loanId, String memberId, int copy_id, LocalDate loanDate, LocalDate dueDate) {
         this.loanId = loanId;
         this.memberId = memberId;
-        this.bookIsbn = bookIsbn;
+        this.copy_id = copy_id;
         this.loanDate = loanDate;
         this.dueDate = dueDate;
     }
@@ -26,10 +26,16 @@ public class Loan {
     public String getMemberId() { return memberId; }
     public void setMemberId(String memberId) { this.memberId = memberId; }
 
-    public String getBookIsbn() { return bookIsbn; }
-    public void setBookIsbn(String bookIsbn) { this.bookIsbn = bookIsbn; }
+    
 
-    public LocalDate getLoanDate() { return loanDate; }
+    public int getCopy_id() {
+		return copy_id;
+	}
+	public void setCopy_id(int copy_id) {
+		this.copy_id = copy_id;
+	}
+
+	public LocalDate getLoanDate() { return loanDate; }
     public void setLoanDate(LocalDate loanDate) { this.loanDate = loanDate; }
 
     public LocalDate getDueDate() { return dueDate; }
