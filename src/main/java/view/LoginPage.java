@@ -23,13 +23,13 @@ public class LoginPage extends JFrame {
         setContentPane(backgroundPanel);
 
         // username and password fields
-        JLabel usernameLabel = new JLabel("Username:");
-        usernameLabel.setForeground(Color.WHITE);
-        usernameLabel.setBounds(300, 250, 100, 30);
+        JLabel emailLabel = new JLabel("Email:");
+        emailLabel.setForeground(Color.WHITE);
+        emailLabel.setBounds(300, 250, 100, 30);
 
-        JTextField usernameField = new JTextField();
-        usernameField.setBounds(400, 250, 150, 30); 
-        usernameField.setBackground(Color.WHITE);
+        JTextField emailField = new JTextField();
+        emailField.setBounds(400, 250, 150, 30); 
+        emailField.setBackground(Color.WHITE);
 
         JLabel passwordLabel = new JLabel("Password:");
         passwordLabel.setForeground(Color.WHITE); 
@@ -43,12 +43,12 @@ public class LoginPage extends JFrame {
         JButton loginButton = new JButton("Login");
         loginButton.setBounds(375, 350, 100, 30); // centering the fields
         loginButton.addActionListener(e -> {
-            String username = usernameField.getText();
+            String email = emailField.getText();
             String password = new String(passwordField.getPassword());
 
             // validation
-            if (username.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Username cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
+            if (email.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Email cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
@@ -72,8 +72,8 @@ public class LoginPage extends JFrame {
         });
 
         // add components to the background label        
-        backgroundPanel.add(usernameLabel);
-        backgroundPanel.add(usernameField);
+        backgroundPanel.add(emailLabel);
+        backgroundPanel.add(emailField);
         backgroundPanel.add(passwordLabel);
         backgroundPanel.add(passwordField);
         backgroundPanel.add(loginButton);

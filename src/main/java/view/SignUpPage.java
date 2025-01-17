@@ -2,6 +2,7 @@ package view;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.regex.Pattern;
 
 public class SignUpPage extends JFrame {
     public SignUpPage() {
@@ -23,13 +24,13 @@ public class SignUpPage extends JFrame {
         setContentPane(backgroundPanel);
 
         // Form elements
-        JLabel usernameLabel = new JLabel("Username:");
-        usernameLabel.setForeground(Color.WHITE); // Set text color to white
-        usernameLabel.setBounds(300, 250, 100, 30);
+        JLabel emailLabel = new JLabel("Email:");
+        emailLabel.setForeground(Color.WHITE); // Set text color to white
+        emailLabel.setBounds(300, 250, 100, 30);
 
-        JTextField usernameField = new JTextField();
-        usernameField.setBounds(400, 250, 150, 30);
-        usernameField.setBackground(Color.WHITE);
+        JTextField emailField = new JTextField();
+        emailField.setBounds(400, 250, 150, 30);
+        emailField.setBackground(Color.WHITE);
 
         JLabel passwordLabel = new JLabel("Password:");
         passwordLabel.setForeground(Color.WHITE); // Set text color to white
@@ -51,13 +52,19 @@ public class SignUpPage extends JFrame {
         JButton signUpButton = new JButton("Sign Up");
         signUpButton.setBounds(375, 400, 100, 30);
         signUpButton.addActionListener(e -> {
-            String username = usernameField.getText();
+            String email = emailField.getText();
             String password = new String(passwordField.getPassword());
             String confirmPassword = new String(confirmPasswordField.getPassword());
 
-            // check if username is empty
-            if (username.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Username cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
+         // Check if email is empty
+            if (email.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Email cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Check if email is valid
+            if (!isValidEmail(email)) {
+                JOptionPane.showMessageDialog(this, "Invalid email format!", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
@@ -87,8 +94,8 @@ public class SignUpPage extends JFrame {
         });
 
         // add components to the background label
-        backgroundPanel.add(usernameLabel);
-        backgroundPanel.add(usernameField);
+        backgroundPanel.add(emailLabel);
+        backgroundPanel.add(emailField);
         backgroundPanel.add(passwordLabel);
         backgroundPanel.add(passwordField);
         backgroundPanel.add(confirmPasswordLabel);
@@ -98,6 +105,12 @@ public class SignUpPage extends JFrame {
 
         setLocationRelativeTo(null); // center the frame on the screen
         setVisible(true);
+    }
+    
+ // Email validation method
+    private boolean isValidEmail(String email) {
+        String emailRegex = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
+        return Pattern.matches(emailRegex, email);
     }
 
     public static void main(String[] args) {

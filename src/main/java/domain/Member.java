@@ -5,19 +5,13 @@ public class Member {
     private String username;
     private String name;
     private String email;
-    private String phoneNumber;
-    
-    private Address address;
 
     // Constructors
-    public Member(String memberId, String username, String name, String email,
-                  String phoneNumber, Address address) {
+    public Member(String memberId, String username, String name, String email) {
         this.memberId = memberId;
         this.username = username;
         this.name = name;
         this.email = email;
-        this.phoneNumber = phoneNumber;
-        this.address = address;
     }
 
     // Getters and Setters
@@ -33,10 +27,5 @@ public class Member {
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
 
-    public String getPhoneNumber() { return phoneNumber; }
-    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
-
-    public Address getAddress() { return address; }
-    public void setAddress(Address address) { this.address = address; }
 }
 
