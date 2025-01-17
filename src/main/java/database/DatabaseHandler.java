@@ -2,6 +2,8 @@ package database;
 
 import java.sql.*;
 
+import domain.Member;
+
 public class DatabaseHandler {
 
     public static boolean isBookExists(Connection conn, String bookId) throws SQLException {
@@ -41,6 +43,49 @@ public class DatabaseHandler {
             stmt.setString(2, firstName);
             stmt.setString(3, lastName);
             stmt.executeUpdate();
+        }
+    }
+    
+    public static Member login(String email, String password) throws SQLException {
+        Connection conn = DatabaseConnection.getConnection();
+        String query = "SELECT * FROM Members WHERE email = ? AND password = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, email);
+            stmt.setString(2, password);
+
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return new Member(
+                        rs.getInt("member_id"),
+                        rs.getString("name"),
+                        rs.getString("email"),
+                        rs.getString("password")
+                );
+            } else {
+                return null;
+            }
+        } finally {
+            conn.close();
+        }
+    }
+    
+    public static boolean insertMember(String name, String lastName, String email, String password) throws SQLException {
+        // SQL query for inserting a new member
+        String sql = "INSERT INTO Members (name, lastname, email, password) VALUES (?, ?, ?, ?)";
+
+        Connection conn = DatabaseConnection.getConnection();
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            // set the parameters of the statement
+            stmt.setString(1, name);
+            stmt.setString(2, lastName); 
+            stmt.setString(3, email); 
+            stmt.setString(4, password); 
+
+            int result = stmt.executeUpdate();
+            return result > 0; // return true if insertion was successful
+        } finally {
+            conn.close();
         }
     }
 }

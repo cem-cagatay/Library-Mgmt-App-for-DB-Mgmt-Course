@@ -1,9 +1,23 @@
 package view;
 
 import javax.swing.*;
+
+import database.DatabaseConnection;
+import database.DatabaseHandler;
+import domain.Member;
+
 import java.awt.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.regex.Pattern;
 
 public class LoginPage extends JFrame {
+	
+    JTextField emailField;
+    JPasswordField passwordField;
+	
     public LoginPage() {
         setTitle("Login - KU Suna Kıraç Library");
         setSize(800, 600);
@@ -27,7 +41,7 @@ public class LoginPage extends JFrame {
         emailLabel.setForeground(Color.WHITE);
         emailLabel.setBounds(300, 250, 100, 30);
 
-        JTextField emailField = new JTextField();
+        emailField = new JTextField();
         emailField.setBounds(400, 250, 150, 30); 
         emailField.setBackground(Color.WHITE);
 
@@ -35,32 +49,19 @@ public class LoginPage extends JFrame {
         passwordLabel.setForeground(Color.WHITE); 
         passwordLabel.setBounds(300, 300, 100, 30);
 
-        JPasswordField passwordField = new JPasswordField();
+        passwordField = new JPasswordField();
         passwordField.setBounds(400, 300, 150, 30); 
         passwordField.setBackground(Color.WHITE);
 
         // login button
         JButton loginButton = new JButton("Login");
-        loginButton.setBounds(375, 350, 100, 30); // centering the fields
+        loginButton.setBounds(400, 350, 100, 30); // centering the fields
         loginButton.addActionListener(e -> {
-            String email = emailField.getText();
-            String password = new String(passwordField.getPassword());
-
-            // validation
-            if (email.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Email cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
+            try {
+                handleLogin();
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(this, "Login error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
-
-            if (!PasswordValidator.isValidPassword(password)) {
-                JOptionPane.showMessageDialog(this,
-                        "Password must be at least 8 characters long, include uppercase, lowercase, digit, and special character.",
-                        "Invalid Password", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            // TODO: Add actual authentication logic
-            JOptionPane.showMessageDialog(this, "Login Successful!");
         });
 
         // back button
@@ -83,7 +84,37 @@ public class LoginPage extends JFrame {
         setVisible(true);
     }
 
-    public static void main(String[] args) {
-        new LoginPage();
+    private void handleLogin() throws SQLException {
+        String email = emailField.getText();
+        String password = new String(passwordField.getPassword());
+
+        if (email.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Email and password cannot be empty.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (!isValidEmail(email)) {
+            JOptionPane.showMessageDialog(this, "Invalid email format.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        Member member = DatabaseHandler.login(email, password);
+        if (member != null) {
+            JOptionPane.showMessageDialog(this, "Login successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
+
+            dispose();
+            EventQueue.invokeLater(() -> {
+                MainPage mainPageFrame = new MainPage(member);
+                mainPageFrame.setVisible(true);
+            });
+        } else {
+            JOptionPane.showMessageDialog(this, "Invalid email or password.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    // Helper method to validate email format
+    private boolean isValidEmail(String email) {
+        String emailRegex = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
+        return Pattern.matches(emailRegex, email);
     }
 }

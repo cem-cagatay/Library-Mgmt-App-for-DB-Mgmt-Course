@@ -1,25 +1,26 @@
 package domain;
 
 public class Member {
-    private String memberId;
+    private int memberId;
     private String username;
     private String name;
+    private String lastName;
     private String email;
 
     // Constructors
-    public Member(String memberId, String username, String name, String email) {
+    public Member(int memberId, String name, String lastName, String email) {
         this.memberId = memberId;
-        this.username = username;
         this.name = name;
+        this.lastName = lastName;
         this.email = email;
     }
 
     // Getters and Setters
-    public String getMemberId() { return memberId; }
-    public void setMemberId(String memberId) { this.memberId = memberId; }
+    public int getMemberId() { return memberId; }
+    public void setMemberId(int memberId) { this.memberId = memberId; }
 
-    public String getUsername() { return username; }
-    public void setUsernameName(String username) { this.username = username; }
+    public String getLastName() { return lastName; }
+    public void setLastnameName(String lastname) { this.lastName = lastname; }
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
