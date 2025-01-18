@@ -25,7 +25,7 @@ public class Book {
 	}
 
 
-	public String getBook_id() {
+	public String getBookId() {
 		return book_id;
 	}
 
@@ -35,7 +35,7 @@ public class Book {
 	}
 
 
-	public String getAuthor_id() {
+	public String getAuthorId() {
 		return author_id;
 	}
 
@@ -45,7 +45,7 @@ public class Book {
 	}
 
 
-	public int getPublish_year() {
+	public int getPublishYear() {
 		return publish_year;
 	}
 

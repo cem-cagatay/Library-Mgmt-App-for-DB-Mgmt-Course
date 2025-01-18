@@ -9,10 +9,8 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
 import domain.Member;
 
 public class SearchPage extends JFrame {
@@ -194,7 +192,7 @@ public class SearchPage extends JFrame {
                 bookLabel.addMouseListener(new MouseAdapter() {
                     @Override
                     public void mouseClicked(MouseEvent e) {
-                    	//new BookDetailsPage(book).setVisible(true); // open BookDetailsPage
+                    	new BookDetailsPage(book).setVisible(true); // open BookDetailsPage
                     }
                 });
                 resultsPanel.add(bookLabel);
@@ -208,7 +206,7 @@ public class SearchPage extends JFrame {
 
         // place the results panel inside a JScrollPane to make it scrollable
         JScrollPane scrollPane = new JScrollPane(resultsPanel);
-        scrollPane.setBounds(500, 120, 250, 400); 
+        scrollPane.setBounds(450, 120, 300, 400); 
         getContentPane().add(scrollPane);
         revalidate(); 
     }

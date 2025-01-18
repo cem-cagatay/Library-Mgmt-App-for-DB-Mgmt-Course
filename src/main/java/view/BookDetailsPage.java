@@ -1,12 +1,15 @@
 package view;
 
 import javax.swing.*;
+
+import domain.Book;
+
 import java.awt.*;
 import java.util.Map;
 
 public class BookDetailsPage extends JFrame {
 
-    public BookDetailsPage(Map<String, String> bookDetails) {
+    public BookDetailsPage(Book book) {
         setTitle("Book Details - KUtüp Library Management System");
         setSize(600, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -25,7 +28,7 @@ public class BookDetailsPage extends JFrame {
         setContentPane(backgroundPanel);
 
         // Title Label
-        JLabel titleLabel = new JLabel(bookDetails.get("Title"), SwingConstants.CENTER);
+        JLabel titleLabel = new JLabel(book.getTitle(), SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
         titleLabel.setForeground(Color.WHITE);
         backgroundPanel.add(titleLabel, BorderLayout.NORTH);
@@ -35,14 +38,26 @@ public class BookDetailsPage extends JFrame {
         detailsPanel.setOpaque(false);
         detailsPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
 
-        for (Map.Entry<String, String> entry : bookDetails.entrySet()) {
-            if (!entry.getKey().equals("Title")) {
-                JLabel detailLabel = new JLabel(entry.getKey() + ": " + entry.getValue());
-                detailLabel.setFont(new Font("Arial", Font.PLAIN, 16));
-                detailLabel.setForeground(Color.WHITE);
-                detailsPanel.add(detailLabel);
-            }
-        }
+        // Displaying Book Attributes
+        JLabel bookIdLabel = new JLabel("Book ID: " + book.getBookId());
+        bookIdLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        bookIdLabel.setForeground(Color.WHITE);
+        detailsPanel.add(bookIdLabel);
+
+        JLabel authorIdLabel = new JLabel("Author ID: " + book.getAuthorId());
+        authorIdLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        authorIdLabel.setForeground(Color.WHITE);
+        detailsPanel.add(authorIdLabel);
+
+        JLabel publishYearLabel = new JLabel("Publish Year: " + book.getPublishYear());
+        publishYearLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        publishYearLabel.setForeground(Color.WHITE);
+        detailsPanel.add(publishYearLabel);
+
+        JLabel subjectLabel = new JLabel("Subject: " + book.getSubject());
+        subjectLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        subjectLabel.setForeground(Color.WHITE);
+        detailsPanel.add(subjectLabel);
 
         backgroundPanel.add(detailsPanel, BorderLayout.CENTER);
 
@@ -51,7 +66,7 @@ public class BookDetailsPage extends JFrame {
         backButton.setFont(new Font("Arial", Font.BOLD, 14));
         backButton.setBackground(Color.WHITE);
         backButton.addActionListener(e -> {
-            dispose(); // Close the current window
+            dispose(); // close the current window
         });
         JPanel buttonPanel = new JPanel();
         buttonPanel.setOpaque(false);

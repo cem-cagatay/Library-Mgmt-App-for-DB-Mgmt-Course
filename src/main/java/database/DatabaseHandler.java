@@ -132,7 +132,7 @@ public class DatabaseHandler {
             parameters.add(fromPublishYear);
             parameters.add(toPublishYear);
         }
-        if (bookId != null) {
+        if (bookId != null && !bookId.isEmpty()) {
             query.append(" AND book_id = ?");
             parameters.add(bookId);
         }
