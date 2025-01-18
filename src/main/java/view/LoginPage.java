@@ -71,6 +71,15 @@ public class LoginPage extends JFrame {
             new StartingPage().setVisible(true);
             dispose();
         });
+        
+     // Admin button
+        JButton adminButton = new JButton("Admin");
+        adminButton.setBounds(650, 500, 100, 30); // bottom right corner
+        adminButton.addActionListener(e -> {
+            Member adminMember = new Member(0, "Admin", "User", "admin@kutup.com");
+            new MainPage(adminMember).setVisible(true);
+            dispose();
+        });
 
         // add components to the background label        
         backgroundPanel.add(emailLabel);
@@ -79,6 +88,7 @@ public class LoginPage extends JFrame {
         backgroundPanel.add(passwordField);
         backgroundPanel.add(loginButton);
         backgroundPanel.add(backButton);
+        backgroundPanel.add(adminButton);
 
         setLocationRelativeTo(null); // center the frame on the screen
         setVisible(true);

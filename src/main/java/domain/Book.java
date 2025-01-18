@@ -3,7 +3,7 @@ package domain;
 public class Book {
 
     private String book_id;        
-    private String author_id;     
+    private Author author;     
     private int publish_year;     
     private String title;        
     private String subject;      
@@ -15,10 +15,10 @@ public class Book {
     }
 
 
-	public Book(String book_id, String author_id, int publish_year, String title, String subject) {
+	public Book(String book_id, Author author, int publish_year, String title, String subject) {
 		super();
 		this.book_id = book_id;
-		this.author_id = author_id;
+		this.author = author;
 		this.publish_year = publish_year;
 		this.title = title;
 		this.subject = subject;
@@ -35,13 +35,13 @@ public class Book {
 	}
 
 
-	public String getAuthorId() {
-		return author_id;
+	public Author getAuthor() {
+		return author;
 	}
 
 
-	public void setAuthor_id(String author_id) {
-		this.author_id = author_id;
+	public void setAuthor(Author author) {
+		this.author = author;
 	}
 
 

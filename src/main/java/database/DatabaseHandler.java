@@ -163,11 +163,10 @@ public class DatabaseHandler {
         String authorId = rs.getString("author_id");
         int publishYear = rs.getInt("publish_year");
         String subject = rs.getString("subject");
-
         Author author = getAuthor(authorId);
 
-        // Create and return Book object (no publisher or numPages info needed)
-        return new Book(bookId, author.getAuthorId(), publishYear, title,  subject);
+        // Create and return Book object
+        return new Book(bookId, author, publishYear, title,  subject);
     }
 
     // Helper method to get the Author object from authorId

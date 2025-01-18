@@ -30,12 +30,12 @@ public class MainPage extends JFrame {
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setOpaque(false);
 
-        JLabel welcomeLabel = new JLabel("Welcome to KUtüp!", SwingConstants.CENTER);
+        JLabel welcomeLabel = new JLabel("Welcome to KUtüp Library Management System!", SwingConstants.CENTER);
         welcomeLabel.setFont(new Font("Arial", Font.BOLD, 24));
         welcomeLabel.setForeground(Color.WHITE);
 
         topPanel.add(welcomeLabel, BorderLayout.CENTER);
-        topPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 20, 0)); 
+        topPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 20, 0));
         backgroundPanel.add(topPanel, BorderLayout.NORTH);
 
         // Middle Section: Split Panel for Analyses and General Information
@@ -44,66 +44,65 @@ public class MainPage extends JFrame {
 
         // Analyses Section
         JTabbedPane tabbedPane = new JTabbedPane();
+        tabbedPane.setFont(new Font("Arial", Font.BOLD, 14));
+        tabbedPane.setBackground(new Color(230, 230, 250));
+        UIManager.put("TabbedPane.selected", new Color(100, 149, 237));
+        UIManager.put("TabbedPane.unselectedBackground", Color.WHITE);
 
         // Tab 1: Most Borrowed Authors
-        JPanel mostBorrowedAuthorsPanel = new JPanel(new BorderLayout());
-        mostBorrowedAuthorsPanel.setBackground(Color.WHITE);
-
-        JLabel authorsTitle = new JLabel("Most Borrowed Authors", SwingConstants.CENTER);
-        authorsTitle.setFont(new Font("Arial", Font.BOLD, 18));
-        mostBorrowedAuthorsPanel.add(authorsTitle, BorderLayout.NORTH);
-
-        JList<String> authorsList = new JList<>(new String[]{
-            "1. J.K. Rowling - 50 borrows",
-            "2. George Orwell - 45 borrows",
-            "3. Harper Lee - 40 borrows",
-            "4. F. Scott Fitzgerald - 38 borrows",
-            "5. J.R.R. Tolkien - 35 borrows"
-        });
-        authorsList.setFont(new Font("Arial", Font.PLAIN, 16));
-        mostBorrowedAuthorsPanel.add(new JScrollPane(authorsList), BorderLayout.CENTER);
-
-        tabbedPane.addTab("Most Borrowed Authors", mostBorrowedAuthorsPanel);
+        tabbedPane.addTab("Most Borrowed Authors", createAnalysisPanel(
+                "Most Borrowed Authors",
+                new String[]{
+                        "1. J.K. Rowling - 50 borrows",
+                        "2. George Orwell - 45 borrows",
+                        "3. Harper Lee - 40 borrows",
+                        "4. F. Scott Fitzgerald - 38 borrows",
+                        "5. J.R.R. Tolkien - 35 borrows"
+                }));
 
         // Tab 2: Late Returns
-        JPanel lateReturnsPanel = new JPanel(new BorderLayout());
-        lateReturnsPanel.setBackground(Color.WHITE);
-
-        JLabel lateReturnsTitle = new JLabel("Books with the Most Late Returns", SwingConstants.CENTER);
-        lateReturnsTitle.setFont(new Font("Arial", Font.BOLD, 18));
-        lateReturnsPanel.add(lateReturnsTitle, BorderLayout.NORTH);
-
-        JList<String> lateReturnsList = new JList<>(new String[]{
-            "1. The Great Gatsby - 10 late returns",
-            "2. 1984 - 8 late returns",
-            "3. To Kill a Mockingbird - 7 late returns",
-            "4. Harry Potter and the Chamber of Secrets - 6 late returns",
-            "5. Moby Dick - 5 late returns"
-        });
-        lateReturnsList.setFont(new Font("Arial", Font.PLAIN, 16));
-        lateReturnsPanel.add(new JScrollPane(lateReturnsList), BorderLayout.CENTER);
-
-        tabbedPane.addTab("Late Returns", lateReturnsPanel);
+        tabbedPane.addTab("Late Returns", createAnalysisPanel(
+                "Books with the Most Late Returns",
+                new String[]{
+                        "1. The Great Gatsby - 10 late returns",
+                        "2. 1984 - 8 late returns",
+                        "3. To Kill a Mockingbird - 7 late returns",
+                        "4. Harry Potter and the Chamber of Secrets - 6 late returns",
+                        "5. Moby Dick - 5 late returns"
+                }));
 
         // Tab 3: Books by Subject
-        JPanel booksBySubjectPanel = new JPanel(new BorderLayout());
-        booksBySubjectPanel.setBackground(Color.WHITE);
+        tabbedPane.addTab("Books by Subject", createAnalysisPanel(
+                "Books by Subject",
+                new String[]{
+                        "1. Fiction - 120 borrows",
+                        "2. Mystery - 90 borrows",
+                        "3. Science - 80 borrows",
+                        "4. History - 75 borrows",
+                        "5. Fantasy - 70 borrows"
+                }));
 
-        JLabel subjectTitle = new JLabel("Books by Subject", SwingConstants.CENTER);
-        subjectTitle.setFont(new Font("Arial", Font.BOLD, 18));
-        booksBySubjectPanel.add(subjectTitle, BorderLayout.NORTH);
+        // Tab 4: Top Borrowers
+        tabbedPane.addTab("Top Borrowers", createAnalysisPanel(
+                "Top Borrowers",
+                new String[]{
+                        "1. Alice Johnson - 20 books",
+                        "2. Bob Smith - 18 books",
+                        "3. Charlie Brown - 15 books",
+                        "4. Diana Prince - 12 books",
+                        "5. Ethan Hunt - 10 books"
+                }));
 
-        JList<String> subjectList = new JList<>(new String[]{
-            "1. Fiction - 120 borrows",
-            "2. Mystery - 90 borrows",
-            "3. Science - 80 borrows",
-            "4. History - 75 borrows",
-            "5. Fantasy - 70 borrows"
-        });
-        subjectList.setFont(new Font("Arial", Font.PLAIN, 16));
-        booksBySubjectPanel.add(new JScrollPane(subjectList), BorderLayout.CENTER);
-
-        tabbedPane.addTab("Books by Subject", booksBySubjectPanel);
+        // Tab 5: Popular Book Copies
+        tabbedPane.addTab("Popular Book Copies", createAnalysisPanel(
+                "Popular Book Copies",
+                new String[]{
+                        "1. Copy 101 - 25 borrows",
+                        "2. Copy 102 - 20 borrows",
+                        "3. Copy 103 - 18 borrows",
+                        "4. Copy 104 - 15 borrows",
+                        "5. Copy 105 - 10 borrows"
+                }));
 
         splitPane.setTopComponent(tabbedPane);
 
@@ -111,7 +110,13 @@ public class MainPage extends JFrame {
         JPanel infoPanel = new JPanel(new BorderLayout());
         infoPanel.setBackground(Color.LIGHT_GRAY);
 
-        JLabel generalInfo = new JLabel("<html><div style='text-align: center;'>KUtüp is your ultimate library management system.<br>Our mission is to streamline library processes and enhance user experiences.<br>Manage your books, authors, and borrowers with ease and efficiency.<br>Stay organized, save time, and enjoy seamless library operations!</div></html>", SwingConstants.CENTER);
+        JLabel generalInfo = new JLabel("<html><div style='text-align: center;'>"
+                + "KUtüp is your ultimate library management system.<br>"
+                + "Our mission is to streamline library processes and enhance user experiences.<br>"
+                + "Manage your books, authors, and borrowers with ease and efficiency.<br>"
+                + "Stay organized, save time, and enjoy seamless library operations!<br>"
+                + "Also We Love COMP306"
+                + "</div></html>", SwingConstants.CENTER);
         generalInfo.setFont(new Font("Arial", Font.PLAIN, 14));
         generalInfo.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
@@ -120,30 +125,25 @@ public class MainPage extends JFrame {
 
         backgroundPanel.add(splitPane, BorderLayout.CENTER);
 
-        // Bottom Section: Search and Logout Buttons
-        JPanel bottomPanel = new JPanel(new BorderLayout());
-        bottomPanel.setOpaque(false);
+        // Footer Section: Buttons, Copyright, and Logged in as
+        JPanel footerPanel = new JPanel(new BorderLayout());
+        footerPanel.setOpaque(false);
+        footerPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        JLabel memberNameLabelBottom = new JLabel("Logged in as: " + member.getFirstName() + " " + member.getLastName(), SwingConstants.LEFT);
-        memberNameLabelBottom.setFont(new Font("Arial", Font.PLAIN, 16));
-        memberNameLabelBottom.setForeground(Color.WHITE);
-        memberNameLabelBottom.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        bottomPanel.add(memberNameLabelBottom, BorderLayout.WEST);
-
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        // Button Panel
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         buttonPanel.setOpaque(false);
 
         JButton searchButton = new JButton("Search");
-        searchButton.setFont(new Font("Arial", Font.BOLD, 16));
+        searchButton.setFont(new Font("Arial", Font.BOLD, 14));
         searchButton.setBackground(Color.WHITE);
         searchButton.addActionListener(e -> {
-            new SearchPage(member).setVisible(true); // Pass Member to SearchPage
+            new SearchPage(member).setVisible(true);
             dispose();
         });
 
-
         JButton logoutButton = new JButton("Logout");
-        logoutButton.setFont(new Font("Arial", Font.BOLD, 16));
+        logoutButton.setFont(new Font("Arial", Font.BOLD, 14));
         logoutButton.setBackground(Color.WHITE);
         logoutButton.addActionListener(e -> {
             new LoginPage().setVisible(true);
@@ -152,11 +152,42 @@ public class MainPage extends JFrame {
 
         buttonPanel.add(searchButton);
         buttonPanel.add(logoutButton);
-        bottomPanel.add(buttonPanel, BorderLayout.CENTER);
+        footerPanel.add(buttonPanel, BorderLayout.NORTH);
 
-        backgroundPanel.add(bottomPanel, BorderLayout.SOUTH);
+        // Footer Text
+        JLabel copyrightLabel = new JLabel("© 2025 KUtüp Library Management System - Version 1.0", SwingConstants.CENTER);
+        copyrightLabel.setFont(new Font("Arial", Font.PLAIN, 12));
+        copyrightLabel.setForeground(Color.WHITE);
+
+        JLabel loggedInAsLabel = new JLabel("Logged in as: " + member.getFirstName() + " " + member.getLastName(), SwingConstants.CENTER);
+        loggedInAsLabel.setFont(new Font("Arial", Font.PLAIN, 12));
+        loggedInAsLabel.setForeground(Color.WHITE);
+
+        JPanel bottomTextPanel = new JPanel(new GridLayout(2, 1));
+        bottomTextPanel.setOpaque(false);
+        bottomTextPanel.add(loggedInAsLabel);
+        bottomTextPanel.add(copyrightLabel);
+
+        footerPanel.add(bottomTextPanel, BorderLayout.SOUTH);
+
+        backgroundPanel.add(footerPanel, BorderLayout.SOUTH);
 
         setLocationRelativeTo(null);
         setVisible(true);
+    }
+
+    private JPanel createAnalysisPanel(String title, String[] data) {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(Color.WHITE);
+
+        JLabel titleLabel = new JLabel(title, SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        panel.add(titleLabel, BorderLayout.NORTH);
+
+        JList<String> list = new JList<>(data);
+        list.setFont(new Font("Arial", Font.PLAIN, 16));
+        panel.add(new JScrollPane(list), BorderLayout.CENTER);
+
+        return panel;
     }
 }

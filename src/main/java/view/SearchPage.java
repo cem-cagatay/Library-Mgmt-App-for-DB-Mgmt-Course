@@ -38,17 +38,28 @@ public class SearchPage extends JFrame {
         // Motivational and Instructional Text
         JLabel infoLabel = new JLabel("<html><div style='text-align: center;'>"
                 + "<h1>Discover Your Next Favorite Book!</h1>"
-                + "Use the filters below to narrow your search.<br>"
-                + "Search by subject, publication year, title, or book ID.<br>"
+                + "<p>Books open up new worlds. Search now to begin your journey!</p>"
+                + "<p>Use the filters below to narrow your search.<br>"
+                + "Search by subject, publication year, title, or book ID.</p>"
                 + "</div></html>", SwingConstants.CENTER);
-        infoLabel.setBounds(50, 20, 700, 80); 
+        infoLabel.setBounds(50, 20, 700, 100); 
         infoLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         infoLabel.setForeground(Color.WHITE);
         backgroundPanel.add(infoLabel);
+        
+        // Footer Section
+        JLabel footerLabel = new JLabel("<html><div style='text-align: center;'>"
+                + "© 2025 KUtüp Library Management System. Version 1.0<br>"
+                + "All rights reserved. | Contact: support@kutup.com"
+                + "</div></html>", SwingConstants.CENTER);
+        footerLabel.setBounds(0, 525, 800, 40);
+        footerLabel.setFont(new Font("Arial", Font.ITALIC, 12));
+        footerLabel.setForeground(Color.LIGHT_GRAY);
+        backgroundPanel.add(footerLabel);
 
         // Back Button
         JButton backButton = new JButton("Back");
-        backButton.setBounds(50, 500, 100, 30);
+        backButton.setBounds(150, 480, 100, 30);
         backButton.addActionListener(e -> {
             new MainPage(member).setVisible(true); // Navigate back to MainPage
             dispose();
@@ -57,72 +68,72 @@ public class SearchPage extends JFrame {
 
         // Subject Label and Dropdown
         JLabel subjectLabel = new JLabel("Subject:");
-        subjectLabel.setBounds(50, 120, 100, 30);
+        subjectLabel.setBounds(50, 130, 100, 30);
         subjectLabel.setForeground(Color.WHITE);
         backgroundPanel.add(subjectLabel);
 
         String[] subjects = {"All", "love", "fiction", "textbooks"};
         JComboBox<String> subjectDropdown = new JComboBox<>(subjects);
-        subjectDropdown.setBounds(150, 120, 150, 30);
+        subjectDropdown.setBounds(150, 130, 150, 30);
         backgroundPanel.add(subjectDropdown);
 
         // Publish Year Range
         JLabel publishYearLabel = new JLabel("Publish Year:");
-        publishYearLabel.setBounds(50, 170, 100, 30);
+        publishYearLabel.setBounds(50, 180, 100, 30);
         publishYearLabel.setForeground(Color.WHITE);
         backgroundPanel.add(publishYearLabel);
 
         JTextField fromYearField = new JTextField();
-        fromYearField.setBounds(150, 170, 70, 30);
+        fromYearField.setBounds(150, 180, 70, 30);
         backgroundPanel.add(fromYearField);
 
         JLabel toLabel = new JLabel("to");
-        toLabel.setBounds(230, 170, 20, 30);
+        toLabel.setBounds(230, 180, 20, 30);
         toLabel.setForeground(Color.WHITE);
         backgroundPanel.add(toLabel);
 
         JTextField toYearField = new JTextField();
-        toYearField.setBounds(260, 170, 70, 30);
+        toYearField.setBounds(260, 180, 70, 30);
         backgroundPanel.add(toYearField);
 
         // Title Field
         JLabel titleLabel = new JLabel("Title:");
-        titleLabel.setBounds(50, 220, 100, 30);
+        titleLabel.setBounds(50, 230, 100, 30);
         titleLabel.setForeground(Color.WHITE);
         backgroundPanel.add(titleLabel);
 
         JTextField titleField = new JTextField();
-        titleField.setBounds(150, 220, 150, 30);
+        titleField.setBounds(150, 230, 150, 30);
         backgroundPanel.add(titleField);
 
         // Book ID Field
         JLabel bookIdLabel = new JLabel("Book ID:");
-        bookIdLabel.setBounds(50, 270, 100, 30);
+        bookIdLabel.setBounds(50, 280, 100, 30);
         bookIdLabel.setForeground(Color.WHITE);
         backgroundPanel.add(bookIdLabel);
 
         JTextField bookIdField = new JTextField();
-        bookIdField.setBounds(150, 270, 150, 30);
+        bookIdField.setBounds(150, 280, 150, 30);
         backgroundPanel.add(bookIdField);
         
      // Author Name Fields
         JLabel authorFirstNameLabel = new JLabel("Author Name:");
-        authorFirstNameLabel.setBounds(50, 320, 150, 30);
+        authorFirstNameLabel.setBounds(50, 330, 150, 30);
         authorFirstNameLabel.setForeground(Color.WHITE);
         backgroundPanel.add(authorFirstNameLabel);
 
         JTextField authorFirstNameField = new JTextField();
-        authorFirstNameField.setBounds(150, 320, 150, 30);
+        authorFirstNameField.setBounds(150, 330, 150, 30);
         backgroundPanel.add(authorFirstNameField);
 
         // Author Last Name Fields
         JLabel authorLastNameLabel = new JLabel("Last Name:");
-        authorLastNameLabel.setBounds(50, 370, 150, 30);
+        authorLastNameLabel.setBounds(50, 380, 150, 30);
         authorLastNameLabel.setForeground(Color.WHITE);
         backgroundPanel.add(authorLastNameLabel);
 
         JTextField authorLastNameField = new JTextField();
-        authorLastNameField.setBounds(150, 370, 150, 30);
+        authorLastNameField.setBounds(150, 380, 150, 30);
         backgroundPanel.add(authorLastNameField);
 
         // Search Button
@@ -212,7 +223,7 @@ public class SearchPage extends JFrame {
         }
 
         scrollPane = new JScrollPane(resultsPanel);  // Assign the new scroll pane to the class-level variable
-        scrollPane.setBounds(450, 120, 300, 400); 
+        scrollPane.setBounds(450, 130, 300, 400); 
         getContentPane().add(scrollPane);
         revalidate(); 
         repaint();

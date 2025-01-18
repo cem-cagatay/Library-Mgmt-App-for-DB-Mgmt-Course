@@ -15,7 +15,7 @@ public class StartingPage extends JFrame {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                ImageIcon backgroundImage = new ImageIcon("src/assets/logo.png");
+                ImageIcon backgroundImage = new ImageIcon("src/assets/new_logo.png");
                 g.drawImage(backgroundImage.getImage(), 0, 0, getWidth(), getHeight(), this);
             }
         };

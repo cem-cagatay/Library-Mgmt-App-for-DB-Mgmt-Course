@@ -44,7 +44,7 @@ public class BookDetailsPage extends JFrame {
         bookIdLabel.setForeground(Color.WHITE);
         detailsPanel.add(bookIdLabel);
 
-        JLabel authorIdLabel = new JLabel("Author ID: " + book.getAuthorId());
+        JLabel authorIdLabel = new JLabel("Author: " + book.getAuthor().getFirstName() + " "+ book.getAuthor().getLastName());
         authorIdLabel.setFont(new Font("Arial", Font.PLAIN, 16));
         authorIdLabel.setForeground(Color.WHITE);
         detailsPanel.add(authorIdLabel);
@@ -60,6 +60,9 @@ public class BookDetailsPage extends JFrame {
         detailsPanel.add(subjectLabel);
 
         backgroundPanel.add(detailsPanel, BorderLayout.CENTER);
+        
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setOpaque(false);
 
         // Back Button
         JButton backButton = new JButton("Back");
@@ -68,8 +71,26 @@ public class BookDetailsPage extends JFrame {
         backButton.addActionListener(e -> {
             dispose(); // close the current window
         });
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setOpaque(false);
+        
+     // Buy Button
+        JButton buyButton = new JButton("Buy");
+        buyButton.setFont(new Font("Arial", Font.BOLD, 14));
+        buyButton.setBackground(Color.WHITE);
+        buyButton.addActionListener(e -> {
+            new BuyBookPage(book.getTitle()).setVisible(true);
+        });
+        buttonPanel.add(buyButton);
+
+        // Borrow Button
+        JButton borrowButton = new JButton("Borrow");
+        borrowButton.setFont(new Font("Arial", Font.BOLD, 14));
+        borrowButton.setBackground(Color.WHITE);
+        borrowButton.addActionListener(e -> {
+            new BorrowBookPage(book.getTitle()).setVisible(true); // open BorrowBookPage
+        });
+
+        buttonPanel.add(borrowButton);
+        buttonPanel.add(buyButton);
         buttonPanel.add(backButton);
         backgroundPanel.add(buttonPanel, BorderLayout.SOUTH);
 
