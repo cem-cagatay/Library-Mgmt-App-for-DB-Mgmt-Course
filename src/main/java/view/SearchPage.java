@@ -2,6 +2,8 @@ package view;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,7 +13,7 @@ import domain.Member;
 public class SearchPage extends JFrame {
 
     public SearchPage(Member member) {
-        setTitle("Search - KUtüp Library Management System");
+        setTitle("Search - Kütüp Library Management System");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(null);
@@ -108,7 +110,7 @@ public class SearchPage extends JFrame {
             String title = titleField.getText();
             String bookId = bookIdField.getText();
 
-            // Fake book data for demonstration
+            // fake book data for demonstration
             List<Map<String, String>> bookResults = new ArrayList<>();
 
             Map<String, String> book1 = new HashMap<>();
@@ -135,13 +137,47 @@ public class SearchPage extends JFrame {
             book3.put("Description", "A novel about a totalitarian regime and surveillance.");
             bookResults.add(book3);
 
-            // Navigate to SearchResultsPage with the search results
-            new SearchResultsPage(bookResults, member).setVisible(true);
-            dispose();
+            // Display the results in a scrollable panel
+            showSearchResults(bookResults);
         });
         backgroundPanel.add(searchButton);
 
         setLocationRelativeTo(null);
         setVisible(true);
+    }
+
+    private void showSearchResults(List<Map<String, String>> bookResults) {
+        // Create the results panel with a vertical BoxLayout for scrollable items
+        JPanel resultsPanel = new JPanel();
+        resultsPanel.setLayout(new BoxLayout(resultsPanel, BoxLayout.Y_AXIS));
+
+        if (bookResults.isEmpty()) {
+            resultsPanel.add(new JLabel("No books found"));
+        } else {
+            // Add each book as a clickable label
+            for (Map<String, String> book : bookResults) {
+                JLabel bookLabel = new JLabel(book.get("Title"));
+                bookLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                bookLabel.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        // Handle book selection (e.g., navigate to a detailed book page)
+                    	new BookDetailsPage(book).setVisible(true); // Open BookDetailsPage
+                    }
+                });
+                resultsPanel.add(bookLabel);
+                
+                // Add a horizontal separator after each book
+                JSeparator separator = new JSeparator();
+                separator.setPreferredSize(new Dimension(400, 1));
+                resultsPanel.add(separator);
+            }
+        }
+
+        // place the results panel inside a JScrollPane to make it scrollable
+        JScrollPane scrollPane = new JScrollPane(resultsPanel);
+        scrollPane.setBounds(500, 120, 250, 400); // Adjusted to make it narrow and tall, and position it to the right
+        getContentPane().add(scrollPane);
+        revalidate(); // Ensure the new panel is rendered
     }
 }
