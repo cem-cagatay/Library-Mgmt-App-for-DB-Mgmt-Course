@@ -21,10 +21,10 @@ public class Member {
 	public void setMember_id(int member_id) {
 		this.member_id = member_id;
 	}
-	public String getFirstname() {
+	public String getFirstName() {
 		return firstname;
 	}
-	public void setFirstname(String firstname) {
+	public void setFirstName(String firstname) {
 		this.firstname = firstname;
 	}
 	public String getLastName() {
