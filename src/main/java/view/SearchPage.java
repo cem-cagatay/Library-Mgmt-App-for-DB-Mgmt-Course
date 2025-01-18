@@ -14,6 +14,8 @@ import java.util.List;
 import domain.Member;
 
 public class SearchPage extends JFrame {
+	
+	private JScrollPane scrollPane; 
 
     public SearchPage(Member member) {
         setTitle("Search - Kütüp Library Management System");
@@ -178,6 +180,11 @@ public class SearchPage extends JFrame {
     }
 
     private void showSearchResults(List<Book> bookResults) {
+    	
+        if (scrollPane != null) {
+            getContentPane().remove(scrollPane);  // Remove the old scroll pane
+        }
+        
         // create the results panel with a vertical BoxLayout for scrollable items
         JPanel resultsPanel = new JPanel();
         resultsPanel.setLayout(new BoxLayout(resultsPanel, BoxLayout.Y_AXIS));
@@ -204,10 +211,10 @@ public class SearchPage extends JFrame {
             }
         }
 
-        // place the results panel inside a JScrollPane to make it scrollable
-        JScrollPane scrollPane = new JScrollPane(resultsPanel);
+        scrollPane = new JScrollPane(resultsPanel);  // Assign the new scroll pane to the class-level variable
         scrollPane.setBounds(450, 120, 300, 400); 
         getContentPane().add(scrollPane);
         revalidate(); 
+        repaint();
     }
 }
