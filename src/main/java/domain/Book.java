@@ -15,16 +15,13 @@ public class Book {
     }
 
 
-	public Book(String book_id, String author_id, int publish_year, String title, String subject, int totalCopies,
-			int availableCopies) {
+	public Book(String book_id, String author_id, int publish_year, String title, String subject) {
 		super();
 		this.book_id = book_id;
 		this.author_id = author_id;
 		this.publish_year = publish_year;
 		this.title = title;
 		this.subject = subject;
-		this.totalCopies = totalCopies;
-		this.availableCopies = availableCopies;
 	}
 
 

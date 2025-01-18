@@ -1,9 +1,14 @@
 package view;
 
 import javax.swing.*;
+
+import database.DatabaseHandler;
+import domain.Book;
+
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -56,7 +61,7 @@ public class SearchPage extends JFrame {
         subjectLabel.setForeground(Color.WHITE);
         backgroundPanel.add(subjectLabel);
 
-        String[] subjects = {"Love", "Fiction", "Text Books"};
+        String[] subjects = {"All", "love", "fiction", "textbooks"};
         JComboBox<String> subjectDropdown = new JComboBox<>(subjects);
         subjectDropdown.setBounds(150, 120, 150, 30);
         backgroundPanel.add(subjectDropdown);
@@ -87,7 +92,7 @@ public class SearchPage extends JFrame {
         backgroundPanel.add(titleLabel);
 
         JTextField titleField = new JTextField();
-        titleField.setBounds(150, 220, 200, 30);
+        titleField.setBounds(150, 220, 150, 30);
         backgroundPanel.add(titleField);
 
         // Book ID Field
@@ -97,48 +102,76 @@ public class SearchPage extends JFrame {
         backgroundPanel.add(bookIdLabel);
 
         JTextField bookIdField = new JTextField();
-        bookIdField.setBounds(150, 270, 200, 30);
+        bookIdField.setBounds(150, 270, 150, 30);
         backgroundPanel.add(bookIdField);
+        
+     // Author Name Fields
+        JLabel authorFirstNameLabel = new JLabel("Author Name:");
+        authorFirstNameLabel.setBounds(50, 320, 150, 30);
+        authorFirstNameLabel.setForeground(Color.WHITE);
+        backgroundPanel.add(authorFirstNameLabel);
+
+        JTextField authorFirstNameField = new JTextField();
+        authorFirstNameField.setBounds(150, 320, 150, 30);
+        backgroundPanel.add(authorFirstNameField);
+
+        // Author Last Name Fields
+        JLabel authorLastNameLabel = new JLabel("Last Name:");
+        authorLastNameLabel.setBounds(50, 370, 150, 30);
+        authorLastNameLabel.setForeground(Color.WHITE);
+        backgroundPanel.add(authorLastNameLabel);
+
+        JTextField authorLastNameField = new JTextField();
+        authorLastNameField.setBounds(150, 370, 150, 30);
+        backgroundPanel.add(authorLastNameField);
 
         // Search Button
         JButton searchButton = new JButton("Search");
-        searchButton.setBounds(150, 350, 100, 30);
+        searchButton.setBounds(150, 430, 100, 30);
         searchButton.addActionListener(e -> {
             String selectedSubject = (String) subjectDropdown.getSelectedItem();
-            String fromYear = fromYearField.getText();
-            String toYear = toYearField.getText();
+            String fromYearText = fromYearField.getText();
+            String toYearText = toYearField.getText();
             String title = titleField.getText();
             String bookId = bookIdField.getText();
+            String authorFirstName = authorFirstNameField.getText();
+            String authorLastName = authorLastNameField.getText();
+            
+            int fromYear = 0;
+            int toYear = 0;
 
-            // fake book data for demonstration
-            List<Map<String, String>> bookResults = new ArrayList<>();
+            if (!fromYearText.isEmpty()) {
+                fromYear = Integer.parseInt(fromYearText);
+            }
+            
+            if (!toYearText.isEmpty()) {
+                toYear = Integer.parseInt(toYearText);
+            }
+            
+            List<Book> bookResults;
+            
+			try {
+				// Modify query to consider "All" as no subject filter
+				if ("All".equals(selectedSubject)) {
+					bookResults = DatabaseHandler.searchBooks(title, null, authorFirstName, authorLastName, fromYear, toYear, bookId);
+					if (bookResults == null || bookResults.isEmpty()) {
+					    System.out.println("No books found.");
+					}
+				} else {
+					bookResults = DatabaseHandler.searchBooks(title, selectedSubject, authorFirstName, authorLastName, fromYear, toYear, bookId);
+					if (bookResults == null || bookResults.isEmpty()) {
+					    System.out.println("No books found.");
+					}
+				}
+				// Display the results in a scrollable panel
+	            showSearchResults(bookResults);
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				JOptionPane.showMessageDialog(null, "Database error: " + e1.getMessage());
+			}
+            
 
-            Map<String, String> book1 = new HashMap<>();
-            book1.put("Title", "The Great Gatsby");
-            book1.put("Author", "F. Scott Fitzgerald");
-            book1.put("Year", "1925");
-            book1.put("Genre", "Fiction");
-            book1.put("Description", "A novel about the American dream.");
-            bookResults.add(book1);
-
-            Map<String, String> book2 = new HashMap<>();
-            book2.put("Title", "To Kill a Mockingbird");
-            book2.put("Author", "Harper Lee");
-            book2.put("Year", "1960");
-            book2.put("Genre", "Fiction");
-            book2.put("Description", "A story of racial injustice in the Deep South.");
-            bookResults.add(book2);
-
-            Map<String, String> book3 = new HashMap<>();
-            book3.put("Title", "1984");
-            book3.put("Author", "George Orwell");
-            book3.put("Year", "1949");
-            book3.put("Genre", "Dystopian");
-            book3.put("Description", "A novel about a totalitarian regime and surveillance.");
-            bookResults.add(book3);
-
-            // Display the results in a scrollable panel
-            showSearchResults(bookResults);
         });
         backgroundPanel.add(searchButton);
 
@@ -146,28 +179,27 @@ public class SearchPage extends JFrame {
         setVisible(true);
     }
 
-    private void showSearchResults(List<Map<String, String>> bookResults) {
-        // Create the results panel with a vertical BoxLayout for scrollable items
+    private void showSearchResults(List<Book> bookResults) {
+        // create the results panel with a vertical BoxLayout for scrollable items
         JPanel resultsPanel = new JPanel();
         resultsPanel.setLayout(new BoxLayout(resultsPanel, BoxLayout.Y_AXIS));
 
         if (bookResults.isEmpty()) {
             resultsPanel.add(new JLabel("No books found"));
         } else {
-            // Add each book as a clickable label
-            for (Map<String, String> book : bookResults) {
-                JLabel bookLabel = new JLabel(book.get("Title"));
+            // add each book as a clickable label
+            for (Book book : bookResults) {
+                JLabel bookLabel = new JLabel(book.getTitle());
                 bookLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                 bookLabel.addMouseListener(new MouseAdapter() {
                     @Override
                     public void mouseClicked(MouseEvent e) {
-                        // Handle book selection (e.g., navigate to a detailed book page)
-                    	new BookDetailsPage(book).setVisible(true); // Open BookDetailsPage
+                    	//new BookDetailsPage(book).setVisible(true); // open BookDetailsPage
                     }
                 });
                 resultsPanel.add(bookLabel);
                 
-                // Add a horizontal separator after each book
+                // add a horizontal separator after each book
                 JSeparator separator = new JSeparator();
                 separator.setPreferredSize(new Dimension(400, 1));
                 resultsPanel.add(separator);
@@ -176,8 +208,8 @@ public class SearchPage extends JFrame {
 
         // place the results panel inside a JScrollPane to make it scrollable
         JScrollPane scrollPane = new JScrollPane(resultsPanel);
-        scrollPane.setBounds(500, 120, 250, 400); // Adjusted to make it narrow and tall, and position it to the right
+        scrollPane.setBounds(500, 120, 250, 400); 
         getContentPane().add(scrollPane);
-        revalidate(); // Ensure the new panel is rendered
+        revalidate(); 
     }
 }

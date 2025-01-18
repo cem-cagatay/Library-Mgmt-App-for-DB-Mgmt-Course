@@ -1,7 +1,11 @@
 package database;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
+import domain.Author;
+import domain.Book;
 import domain.Member;
 
 public class DatabaseHandler {
@@ -87,6 +91,97 @@ public class DatabaseHandler {
         } finally {
             conn.close();
         }
+    }
+    
+    public static List<Book> searchBooks(String title, String subject, String authorName, String authorLastName,
+                                         int fromPublishYear, int toPublishYear, String bookId) throws SQLException {
+        // early exit if all parameters are empty
+        if ((title == null || title.isEmpty()) && (subject == null || subject.isEmpty()) &&
+            (authorName == null || authorName.isEmpty()) && (authorLastName == null || authorLastName.isEmpty()) && (bookId == null)) {
+            return new ArrayList<>(); // Return empty list if no criteria are provided
+        }
+        
+        StringBuilder query = new StringBuilder("SELECT * FROM Book WHERE 1=1");
+        List<Object> parameters = new ArrayList<>();
+
+        if (title != null && !title.isEmpty()) {
+            query.append(" AND title LIKE ?");
+            parameters.add("%" + title + "%");
+        }
+        if (subject != null && !subject.isEmpty()) {
+            query.append(" AND subject = ?");
+            parameters.add(subject);
+        }
+        if (authorName != null && !authorName.isEmpty() && authorLastName != null && !authorLastName.isEmpty()) {
+            // Search for both first name and last name
+            query.append(" AND author_id IN (SELECT author_id FROM Author WHERE first_name LIKE ? AND last_name LIKE ?)");
+            parameters.add("%" + authorName + "%");
+            parameters.add("%" + authorLastName + "%");
+        } else if (authorName != null && !authorName.isEmpty()) {
+            // Search only for first name
+            query.append(" AND author_id IN (SELECT author_id FROM Author WHERE first_name LIKE ?)");
+            parameters.add("%" + authorName + "%");
+        } else if (authorLastName != null && !authorLastName.isEmpty()) {
+            // Search only for last name
+            query.append(" AND author_id IN (SELECT author_id FROM Author WHERE last_name LIKE ?)");
+            parameters.add("%" + authorLastName + "%");
+        }
+        
+        if (fromPublishYear != 0 && toPublishYear != 0) {
+            query.append(" AND publish_year BETWEEN ? AND ?");
+            parameters.add(fromPublishYear);
+            parameters.add(toPublishYear);
+        }
+        if (bookId != null) {
+            query.append(" AND book_id = ?");
+            parameters.add(bookId);
+        }
+        
+        System.out.println("Search query: " + query.toString());  // Log the query
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query.toString())) {
+            for (int i = 0; i < parameters.size(); i++) {
+                stmt.setObject(i + 1, parameters.get(i));
+            }
+
+            ResultSet rs = stmt.executeQuery();
+            List<Book> books = new ArrayList<>();
+            while (rs.next()) {
+                books.add(extractBookInfo(rs));
+            }
+            return books;
+        } catch (SQLException e) {
+            throw new RuntimeException("Database search operation failed.", e);
+        }
+    }
+
+    // Extract Book Info method
+    private static Book extractBookInfo(ResultSet rs) throws SQLException {
+        String bookId = rs.getString("book_id");
+        String title = rs.getString("title");
+        String authorId = rs.getString("author_id");
+        int publishYear = rs.getInt("publish_year");
+        String subject = rs.getString("subject");
+
+        Author author = getAuthor(authorId);
+
+        // Create and return Book object (no publisher or numPages info needed)
+        return new Book(bookId, author.getAuthorId(), publishYear, title,  subject);
+    }
+
+    // Helper method to get the Author object from authorId
+    private static Author getAuthor(String authorId) throws SQLException {
+        String query = "SELECT * FROM Author WHERE author_id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, authorId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return new Author(rs.getString("author_id"), rs.getString("first_name"), rs.getString("last_name"));
+            }
+        }
+        return null; // return null if author not found
     }
 }
 
