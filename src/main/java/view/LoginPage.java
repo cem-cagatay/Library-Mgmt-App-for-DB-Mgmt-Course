@@ -19,7 +19,7 @@ public class LoginPage extends JFrame {
     JPasswordField passwordField;
 	
     public LoginPage() {
-        setTitle("Login - KU Suna Kıraç Library");
+        setTitle("Login - KUtüp Library");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(null);

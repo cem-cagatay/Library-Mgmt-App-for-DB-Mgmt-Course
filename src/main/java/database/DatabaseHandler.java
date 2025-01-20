@@ -6,6 +6,7 @@ import java.util.List;
 
 import domain.Author;
 import domain.Book;
+import domain.BookCopy;
 import domain.Member;
 
 public class DatabaseHandler {
@@ -181,6 +182,32 @@ public class DatabaseHandler {
             }
         }
         return null; // return null if author not found
+    }
+    
+    
+    public static List<BookCopy> getAvailableBookCopies(Book book) throws SQLException {
+        String query = "SELECT * FROM Book_Copy WHERE book_id = ? AND status = 'Available'";
+        List<BookCopy> bookCopies = new ArrayList<>();
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, book.getBookId());
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                int copyId = rs.getInt("copy_id");
+                String status = rs.getString("status");
+                double price = rs.getDouble("price");
+                int floorNumber = rs.getInt("floor_number");
+                char shelfLetter = rs.getString("shelf_letter").charAt(0);
+                int shelfNumber = rs.getInt("shelf_number");
+
+                // create a BookCopy object and add it to the list
+                bookCopies.add(new BookCopy(copyId, book, status, price, floorNumber, shelfLetter, shelfNumber));
+            }
+        }
+
+        return bookCopies;
     }
 }
 

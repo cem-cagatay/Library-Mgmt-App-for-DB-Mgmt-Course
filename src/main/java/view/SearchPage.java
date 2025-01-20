@@ -16,8 +16,12 @@ import domain.Member;
 public class SearchPage extends JFrame {
 	
 	private JScrollPane scrollPane; 
+	private Member member;
 
     public SearchPage(Member member) {
+    	
+    	this.member = member;
+    	
         setTitle("Search - Kütüp Library Management System");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -116,7 +120,7 @@ public class SearchPage extends JFrame {
         bookIdField.setBounds(150, 280, 150, 30);
         backgroundPanel.add(bookIdField);
         
-     // Author Name Fields
+     
         JLabel authorFirstNameLabel = new JLabel("Author Name:");
         authorFirstNameLabel.setBounds(50, 330, 150, 30);
         authorFirstNameLabel.setForeground(Color.WHITE);
@@ -126,7 +130,6 @@ public class SearchPage extends JFrame {
         authorFirstNameField.setBounds(150, 330, 150, 30);
         backgroundPanel.add(authorFirstNameField);
 
-        // Author Last Name Fields
         JLabel authorLastNameLabel = new JLabel("Last Name:");
         authorLastNameLabel.setBounds(50, 380, 150, 30);
         authorLastNameLabel.setForeground(Color.WHITE);
@@ -174,7 +177,7 @@ public class SearchPage extends JFrame {
 					    System.out.println("No books found.");
 					}
 				}
-				// Display the results in a scrollable panel
+				// display the results in a scrollable panel
 	            showSearchResults(bookResults);
 			} catch (SQLException e1) {
 				// TODO Auto-generated catch block
@@ -193,7 +196,7 @@ public class SearchPage extends JFrame {
     private void showSearchResults(List<Book> bookResults) {
     	
         if (scrollPane != null) {
-            getContentPane().remove(scrollPane);  // Remove the old scroll pane
+            getContentPane().remove(scrollPane);  // remove the old scroll pane
         }
         
         // create the results panel with a vertical BoxLayout for scrollable items
@@ -210,7 +213,8 @@ public class SearchPage extends JFrame {
                 bookLabel.addMouseListener(new MouseAdapter() {
                     @Override
                     public void mouseClicked(MouseEvent e) {
-                    	new BookDetailsPage(book).setVisible(true); // open BookDetailsPage
+                    	new BookDetailsPage(member, book).setVisible(true); // open BookDetailsPage
+                    	
                     }
                 });
                 resultsPanel.add(bookLabel);
@@ -222,7 +226,7 @@ public class SearchPage extends JFrame {
             }
         }
 
-        scrollPane = new JScrollPane(resultsPanel);  // Assign the new scroll pane to the class-level variable
+        scrollPane = new JScrollPane(resultsPanel); 
         scrollPane.setBounds(450, 130, 300, 400); 
         getContentPane().add(scrollPane);
         revalidate(); 

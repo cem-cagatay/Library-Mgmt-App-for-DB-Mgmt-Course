@@ -1,17 +1,20 @@
 package view;
 
 import javax.swing.*;
+
+import domain.Book;
+
 import java.awt.*;
 
 public class BuyBookPage extends JFrame {
 
-    public BuyBookPage(String bookTitle) {
+    public BuyBookPage(Book book) {
         setTitle("Buy Book - KUtüp Library Management System");
         setSize(600, 400);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        // Background Panel
+        // background Panel
         JPanel backgroundPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -23,9 +26,9 @@ public class BuyBookPage extends JFrame {
         backgroundPanel.setLayout(new BorderLayout());
         setContentPane(backgroundPanel);
 
-        // Motivation Label
+        // motivation Label
         JLabel motivationLabel = new JLabel("<html><div style='text-align: center;'>"
-                + "<h2>You're about to own \"" + bookTitle + "\"!</h2>"
+                + "<h2>You're about to own \"" + book.getTitle() + "\"!</h2>"
                 + "<p>Complete your purchase by entering your payment details.</p>"
                 + "</div></html>", SwingConstants.CENTER);
         motivationLabel.setFont(new Font("Arial", Font.PLAIN, 14));
@@ -33,21 +36,20 @@ public class BuyBookPage extends JFrame {
         motivationLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         backgroundPanel.add(motivationLabel, BorderLayout.NORTH);
 
-        // Input Fields Panel with GridBagLayout
+        // input fields panel with GridBagLayout
         JPanel inputPanel = new JPanel(new GridBagLayout());
         inputPanel.setOpaque(false);
         inputPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 10, 5, 10);  // Add some space between components
-        gbc.anchor = GridBagConstraints.WEST;  // Center the components
+        gbc.insets = new Insets(5, 10, 5, 10);  // space between components
+        gbc.anchor = GridBagConstraints.WEST;  // center the components
 
-        // Price label and value next to each other
         JLabel priceLabel = new JLabel("Price:");
         priceLabel.setForeground(Color.WHITE);
         priceLabel.setFont(new Font("Arial", Font.PLAIN, 14));
 
-        JLabel priceValueLabel = new JLabel("$10.00"); // Static price for demonstration
+        JLabel priceValueLabel = new JLabel("$10.00");
         priceValueLabel.setForeground(Color.WHITE);
         priceValueLabel.setFont(new Font("Arial", Font.PLAIN, 14));
 
@@ -58,24 +60,24 @@ public class BuyBookPage extends JFrame {
 
         JTextField creditCardField = new JTextField(10); // Reduced size
 
-        // Positioning components in GridBagLayout
-        gbc.gridx = 0;  // First column
-        gbc.gridy = 0;  // First row
+        // positioning components in GridBagLayout
+        gbc.gridx = 0;  // first column
+        gbc.gridy = 0;  // first row
         inputPanel.add(priceLabel, gbc);
 
-        gbc.gridx = 1;  // Second column
+        gbc.gridx = 1;  // second column
         inputPanel.add(priceValueLabel, gbc);
 
-        gbc.gridx = 0;  // First column (next row)
-        gbc.gridy = 1;  // Second row
+        gbc.gridx = 0;  // first column (next row)
+        gbc.gridy = 1;  // second row
         inputPanel.add(creditCardLabel, gbc);
 
-        gbc.gridx = 1;  // Second column (same row as the label)
+        gbc.gridx = 1;  // second column (same row as the label)
         inputPanel.add(creditCardField, gbc);
 
         backgroundPanel.add(inputPanel, BorderLayout.CENTER);
 
-        // Button Panel
+        // button Panel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         buttonPanel.setOpaque(false);
 
@@ -97,13 +99,13 @@ public class BuyBookPage extends JFrame {
                         this,
                         "<html><div style='text-align: center;'>"
                                 + "<h2>Congratulations!</h2>"
-                                + "<p>You've successfully purchased \"" + bookTitle + "\".</p>"
+                                + "<p>You've successfully purchased \"" + book.getTitle()+ "\".</p>"
                                 + "<p>Enjoy your journey through its pages!</p>"
                                 + "</div></html>",
                         "Success",
                         JOptionPane.INFORMATION_MESSAGE
                 );
-                dispose(); // Close the BuyBookPage after confirmation
+                dispose(); // close the BuyBookPage after confirmation
             }
         });
 

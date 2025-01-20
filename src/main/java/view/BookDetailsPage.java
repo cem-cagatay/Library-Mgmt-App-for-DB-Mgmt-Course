@@ -2,17 +2,23 @@ package view;
 
 import javax.swing.*;
 
+import database.DatabaseHandler;
 import domain.Book;
+import domain.BookCopy;
+import domain.Member;
 
 import java.awt.*;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class BookDetailsPage extends JFrame {
 
-    public BookDetailsPage(Book book) {
+    public BookDetailsPage(Member member, Book book) {
         setTitle("Book Details - KUtüp Library Management System");
         setSize(600, 400);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
 
         // Background panel
@@ -58,11 +64,36 @@ public class BookDetailsPage extends JFrame {
         subjectLabel.setFont(new Font("Arial", Font.PLAIN, 16));
         subjectLabel.setForeground(Color.WHITE);
         detailsPanel.add(subjectLabel);
-
-        backgroundPanel.add(detailsPanel, BorderLayout.CENTER);
         
         JPanel buttonPanel = new JPanel();
         buttonPanel.setOpaque(false);
+        
+        // Fetch the available copies once
+        List<BookCopy> availableCopies = new ArrayList<>();
+        try {
+            availableCopies = DatabaseHandler.getAvailableBookCopies(book);
+            JLabel availableCopiesLabel = new JLabel("Available Copies: " + availableCopies.size());
+            availableCopiesLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+            availableCopiesLabel.setForeground(Color.WHITE);
+            detailsPanel.add(availableCopiesLabel);
+            
+         // add the "See Available Copies" button only if there are available copies
+            if (!availableCopies.isEmpty()) {
+                JButton seeCopiesButton = new JButton("See Available Copies");
+                seeCopiesButton.setFont(new Font("Arial", Font.BOLD, 14));
+                seeCopiesButton.setBackground(Color.WHITE);
+
+                // pass available copies to the next page
+                List<BookCopy> finalAvailableCopies = availableCopies;
+                seeCopiesButton.addActionListener(e -> new AvailableCopiesPage(finalAvailableCopies).setVisible(true));
+                buttonPanel.add(seeCopiesButton);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error fetching available copies: " + e.getMessage());
+        }
+
+        backgroundPanel.add(detailsPanel, BorderLayout.CENTER);
 
         // Back Button
         JButton backButton = new JButton("Back");
@@ -72,25 +103,7 @@ public class BookDetailsPage extends JFrame {
             dispose(); // close the current window
         });
         
-     // Buy Button
-        JButton buyButton = new JButton("Buy");
-        buyButton.setFont(new Font("Arial", Font.BOLD, 14));
-        buyButton.setBackground(Color.WHITE);
-        buyButton.addActionListener(e -> {
-            new BuyBookPage(book.getTitle()).setVisible(true);
-        });
-        buttonPanel.add(buyButton);
 
-        // Borrow Button
-        JButton borrowButton = new JButton("Borrow");
-        borrowButton.setFont(new Font("Arial", Font.BOLD, 14));
-        borrowButton.setBackground(Color.WHITE);
-        borrowButton.addActionListener(e -> {
-            new BorrowBookPage(book.getTitle()).setVisible(true); // open BorrowBookPage
-        });
-
-        buttonPanel.add(borrowButton);
-        buttonPanel.add(buyButton);
         buttonPanel.add(backButton);
         backgroundPanel.add(buttonPanel, BorderLayout.SOUTH);
 

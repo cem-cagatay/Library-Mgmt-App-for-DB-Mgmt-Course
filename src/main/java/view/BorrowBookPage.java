@@ -6,9 +6,11 @@ import java.util.Date;
 
 import com.toedter.calendar.JDateChooser;
 
+import domain.Book;
+
 public class BorrowBookPage extends JFrame {
 
-    public BorrowBookPage(String bookTitle) {
+    public BorrowBookPage(Book book) {
         setTitle("Borrow Book - KUtüp Library Management System");
         setSize(600, 400);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -28,7 +30,7 @@ public class BorrowBookPage extends JFrame {
 
         // Motivation Label
         JLabel motivationLabel = new JLabel("<html><div style='text-align: center;'>"
-                + "<h2>You are borrowing \"" + bookTitle + "\"!</h2>"
+                + "<h2>You are borrowing \"" + book.getTitle() + "\"!</h2>"
                 + "<p>Choose the borrowing period to proceed.</p>"
                 + "</div></html>", SwingConstants.CENTER);
         motivationLabel.setFont(new Font("Arial", Font.PLAIN, 14));
@@ -42,10 +44,9 @@ public class BorrowBookPage extends JFrame {
         inputPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 10, 5, 10);  // Add space between components
-        gbc.anchor = GridBagConstraints.WEST;  // Center the components
+        gbc.insets = new Insets(5, 10, 5, 10);  // space between components
+        gbc.anchor = GridBagConstraints.WEST;  // center the components
 
-        // Start Date label and field next to each other
         JLabel startDateLabel = new JLabel("Pick Start Date:");
         startDateLabel.setForeground(Color.WHITE);
         startDateLabel.setFont(new Font("Arial", Font.PLAIN, 14));
@@ -78,9 +79,8 @@ public class BorrowBookPage extends JFrame {
         gbc.gridx = 1;  // Second column (same row as the label)
         inputPanel.add(endDateChooser, gbc);
 
-        // Add the input panel to the background panel
         backgroundPanel.add(inputPanel, BorderLayout.CENTER);
-        // Button Panel
+
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         buttonPanel.setOpaque(false);
 
@@ -103,7 +103,7 @@ public class BorrowBookPage extends JFrame {
                         this,
                         "<html><div style='text-align: center;'>"
                                 + "<h2>Borrowing Confirmed!</h2>"
-                                + "<p>You have borrowed \"" + bookTitle + "\".</p>"
+                                + "<p>You have borrowed \"" + book.getTitle()+ "\".</p>"
                                 + "<p>From: " + startDate + " To: " + endDate + "</p>"
                                 + "</div></html>",
                         "Success",
