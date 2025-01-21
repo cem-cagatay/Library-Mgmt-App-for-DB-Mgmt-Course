@@ -22,7 +22,7 @@ public class SearchPage extends JFrame {
     	
     	this.member = member;
     	
-        setTitle("Search - Kütüp Library Management System");
+        setTitle("Search - KUtüp Library Management System");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(null);

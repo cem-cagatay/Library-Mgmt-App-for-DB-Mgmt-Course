@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 
 public class SignUpPage extends JFrame {
     public SignUpPage() {
-        setTitle("Sign Up - KU Suna Kıraç Library");
+        setTitle("Sign Up - KUtüp Library");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(null);

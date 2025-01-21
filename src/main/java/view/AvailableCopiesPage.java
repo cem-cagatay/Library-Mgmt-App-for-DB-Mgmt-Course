@@ -3,17 +3,21 @@ package view;
 import javax.swing.*;
 import java.awt.*;
 import java.sql.SQLException;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import database.DatabaseHandler;
 import domain.BookCopy;
+import domain.Member;
 
 
 public class AvailableCopiesPage extends JFrame {
 
-    public AvailableCopiesPage(List<BookCopy> availableCopies) {
+    public AvailableCopiesPage(List<BookCopy> availableCopies, Member member) {
         setTitle("Available Copies - Kütüp Library Management System");
-        setSize(500, 300);
+        setSize(600, 400);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
 
@@ -47,19 +51,23 @@ public class AvailableCopiesPage extends JFrame {
         scrollPane.getViewport().setOpaque(false);
         backgroundPanel.add(scrollPane, BorderLayout.CENTER);
 
-        // Display Available Copies
+        // Map to associate JRadioButton with BookCopy
+        Map<JRadioButton, BookCopy> buttonToBookCopyMap = new HashMap<>();
         ButtonGroup buttonGroup = new ButtonGroup();
 
         for (BookCopy copy : availableCopies) {
             JRadioButton copyButton = new JRadioButton(
-                String.format("%s | Price: %.2f | Location: %d-%c%d",
-                    copy.getBook().getTitle(), copy.getPrice(), copy.getFloorNumber(),
+                String.format("Copy ID: %d | Price: %.2f | Location: %d-%c%d",
+                    copy.getCopyId(), copy.getPrice(), copy.getFloorNumber(),
                     copy.getShelfLetter(), copy.getShelfNumber()));
             copyButton.setFont(new Font("Arial", Font.BOLD, 14));
             copyButton.setOpaque(false);
             copyButton.setForeground(Color.WHITE);
             buttonGroup.add(copyButton);
             copiesPanel.add(copyButton);
+
+            // Associate the button with the corresponding BookCopy
+            buttonToBookCopyMap.put(copyButton, copy);
         }
 
         // Buttons Panel
@@ -77,12 +85,21 @@ public class AvailableCopiesPage extends JFrame {
         buyButton.setFont(new Font("Arial", Font.BOLD, 14));
         buyButton.setBackground(Color.WHITE);
         buyButton.addActionListener(e -> {
-            ButtonModel selectedModel = buttonGroup.getSelection();
-            if (selectedModel == null) {
+            // find the selected button and retrieve the associated BookCopy
+            JRadioButton selectedButton = null;
+            for (Enumeration<AbstractButton> buttons = buttonGroup.getElements(); buttons.hasMoreElements();) {
+                AbstractButton button = buttons.nextElement();
+                if (button.isSelected()) {
+                    selectedButton = (JRadioButton) button; // Cast to JRadioButton
+                    break;
+                }
+            }
+
+            if (selectedButton == null) {
                 JOptionPane.showMessageDialog(this, "Please select a copy to buy.");
             } else {
-                // Pass selected copy to BuyBookPage
-                JOptionPane.showMessageDialog(this, "Buy functionality under construction.");
+                BookCopy selectedCopy = buttonToBookCopyMap.get(selectedButton);
+                new BuyBookPage(selectedCopy, member).setVisible(true);
                 dispose();
             }
         });
@@ -91,18 +108,28 @@ public class AvailableCopiesPage extends JFrame {
         JButton borrowButton = new JButton("Borrow");
         borrowButton.setFont(new Font("Arial", Font.BOLD, 14));
         borrowButton.setBackground(Color.WHITE);
+        
         borrowButton.addActionListener(e -> {
-            ButtonModel selectedModel = buttonGroup.getSelection();
-            if (selectedModel == null) {
+            // find the selected button and retrieve the associated BookCopy
+            JRadioButton selectedButton = null;
+            for (Enumeration<AbstractButton> buttons = buttonGroup.getElements(); buttons.hasMoreElements();) {
+                AbstractButton button = buttons.nextElement();
+                if (button.isSelected()) {
+                    selectedButton = (JRadioButton) button;
+                    break;
+                }
+            }
+
+            if (selectedButton == null) {
                 JOptionPane.showMessageDialog(this, "Please select a copy to borrow.");
             } else {
-                // Pass selected copy to BorrowBookPage
-                JOptionPane.showMessageDialog(this, "Borrow functionality under construction.");
+                BookCopy selectedCopy = buttonToBookCopyMap.get(selectedButton);
+                new BorrowBookPage(selectedCopy, member).setVisible(true);
                 dispose();
             }
         });
         buttonPanel.add(borrowButton);
-
+        
         backgroundPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         setLocationRelativeTo(null);

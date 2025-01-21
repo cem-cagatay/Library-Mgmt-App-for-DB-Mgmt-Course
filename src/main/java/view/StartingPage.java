@@ -5,7 +5,7 @@ import java.awt.*;
 
 public class StartingPage extends JFrame {
     public StartingPage() {
-        setTitle("KU Suna Kıraç Library Management System");
+        setTitle("KUtüp Library Management System");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(null);

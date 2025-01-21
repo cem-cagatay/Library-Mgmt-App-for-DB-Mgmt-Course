@@ -2,15 +2,20 @@ package view;
 
 import javax.swing.*;
 import java.awt.*;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 
 import com.toedter.calendar.JDateChooser;
 
-import domain.Book;
+import database.DatabaseHandler;
+import domain.BookCopy;
+import domain.Borrow;
+import domain.Member;
 
 public class BorrowBookPage extends JFrame {
 
-    public BorrowBookPage(Book book) {
+    public BorrowBookPage(BookCopy bookCopy, Member member) {
         setTitle("Borrow Book - KUtüp Library Management System");
         setSize(600, 400);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -30,7 +35,7 @@ public class BorrowBookPage extends JFrame {
 
         // Motivation Label
         JLabel motivationLabel = new JLabel("<html><div style='text-align: center;'>"
-                + "<h2>You are borrowing \"" + book.getTitle() + "\"!</h2>"
+                + "<h2>You are borrowing \"" + bookCopy.getCopyId() + "\"!</h2>"
                 + "<p>Choose the borrowing period to proceed.</p>"
                 + "</div></html>", SwingConstants.CENTER);
         motivationLabel.setFont(new Font("Arial", Font.PLAIN, 14));
@@ -87,6 +92,7 @@ public class BorrowBookPage extends JFrame {
         JButton confirmButton = new JButton("Confirm Borrowing");
         confirmButton.setFont(new Font("Arial", Font.BOLD, 14));
         confirmButton.setBackground(Color.WHITE);
+        
         confirmButton.addActionListener(e -> {
             Date startDate = startDateChooser.getDate();
             Date endDate = endDateChooser.getDate();
@@ -99,17 +105,35 @@ public class BorrowBookPage extends JFrame {
                         JOptionPane.ERROR_MESSAGE
                 );
             } else {
-                JOptionPane.showMessageDialog(
-                        this,
-                        "<html><div style='text-align: center;'>"
-                                + "<h2>Borrowing Confirmed!</h2>"
-                                + "<p>You have borrowed \"" + book.getTitle()+ "\".</p>"
-                                + "<p>From: " + startDate + " To: " + endDate + "</p>"
-                                + "</div></html>",
-                        "Success",
-                        JOptionPane.INFORMATION_MESSAGE
-                );
-                dispose(); // Close the BorrowBookPage after confirmation
+                // Create a Borrow object
+                LocalDate borrowDate = startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                LocalDate dueDate = endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                Borrow borrow = new Borrow(member, bookCopy, borrowDate, dueDate);
+
+                // save borrowing details and update book copy status
+                boolean borrowSaved = DatabaseHandler.saveBorrowToDatabase(borrow);
+                boolean statusUpdated = DatabaseHandler.updateBookCopyStatus(bookCopy.getCopyId(), "Unavailable");
+
+                if (borrowSaved && statusUpdated) {
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "<html><div style='text-align: center;'>"
+                                    + "<h2>Borrowing Confirmed!</h2>"
+                                    + "<p>You have borrowed \"" + bookCopy.getBook().getTitle() + "\".</p>"
+                                    + "<p>From: " + borrowDate + " To: " + dueDate + "</p>"
+                                    + "</div></html>",
+                            "Success",
+                            JOptionPane.INFORMATION_MESSAGE
+                    );
+                    dispose(); // close the BorrowBookPage after confirmation
+                } else {
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "Error occurred during borrowing. Please try again.",
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+                }
             }
         });
 

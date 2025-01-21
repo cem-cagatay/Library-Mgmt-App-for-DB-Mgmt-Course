@@ -7,7 +7,9 @@ import java.util.List;
 import domain.Author;
 import domain.Book;
 import domain.BookCopy;
+import domain.Borrow;
 import domain.Member;
+import domain.Purchase;
 
 public class DatabaseHandler {
 
@@ -209,5 +211,108 @@ public class DatabaseHandler {
 
         return bookCopies;
     }
+    
+    
+    // save purchase to the "Buys" table
+    public static boolean savePurchaseToDatabase(Purchase purchase) {
+    	Member member =purchase.getMember();
+    	BookCopy bookCopy = purchase.getBookCopy();
+    	
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            String query = "INSERT INTO Buys (member_id, copy_id) VALUES (?, ?)";
+            try (PreparedStatement stmt = conn.prepareStatement(query)) {
+                stmt.setInt(1, member.getMemberId());
+                stmt.setInt(2, bookCopy.getCopyId());
+                int rowsAffected = stmt.executeUpdate();
+                return rowsAffected > 0; // return true if the purchase was saved successfully
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false; // return false if there was an error
+        }
+    }
+    
+    // Save borrowing details to the "Borrows" table
+    public static boolean saveBorrowToDatabase(Borrow borrow) {
+    	Member member =borrow.getMember();
+    	BookCopy bookCopy = borrow.getCopy();
+    	
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            String query = "INSERT INTO Borrows (member_id, copy_id, borrow_date, due_date) VALUES (?, ?, ?, ?)";
+            try (PreparedStatement stmt = conn.prepareStatement(query)) {
+                stmt.setInt(1, member.getMemberId());
+                stmt.setInt(2, bookCopy.getCopyId());
+                stmt.setDate(3, Date.valueOf(borrow.getBorrowDate()));
+                stmt.setDate(4, Date.valueOf(borrow.getDueDate()));
+                int rowsAffected = stmt.executeUpdate();
+                return rowsAffected > 0; // return true if the borrowing was saved successfully
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false; // return false if there was an error
+        }
+    }
+
+ // Update billing address in the Buyer table and/or credit card number in the Members table
+    public static boolean updateMemberDetails(Member member) {
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            conn.setAutoCommit(false); // Start transaction
+
+            boolean hasBillingAddress = member.getBillingAddress() != null && !member.getBillingAddress().isEmpty();
+            boolean hasCreditCardNumber = member.getCreditCardNumber() != null && !member.getCreditCardNumber().isEmpty();
+
+            boolean billingAddressUpdated = true;
+            boolean creditCardUpdated = true;
+
+            // Update the Buyer table for the billing address
+            if (hasBillingAddress) {
+                String buyerQuery = "UPDATE Buyer SET billing_address = ? WHERE member_id = ?";
+                try (PreparedStatement stmt = conn.prepareStatement(buyerQuery)) {
+                    stmt.setString(1, member.getBillingAddress());
+                    stmt.setInt(2, member.getMemberId());
+                    billingAddressUpdated = stmt.executeUpdate() > 0;
+                }
+            }
+
+            // Update the Members table for the credit card number
+            if (hasCreditCardNumber) {
+                String memberQuery = "UPDATE Members SET credit_card_number = ? WHERE member_id = ?";
+                try (PreparedStatement stmt = conn.prepareStatement(memberQuery)) {
+                    stmt.setString(1, member.getCreditCardNumber());
+                    stmt.setInt(2, member.getMemberId());
+                    creditCardUpdated = stmt.executeUpdate() > 0;
+                }
+            }
+
+            if (billingAddressUpdated && creditCardUpdated) {
+                conn.commit(); // Commit transaction if both updates succeeded
+                return true;
+            } else {
+                conn.rollback(); // Rollback transaction if any update failed
+                return false;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false; // Return false in case of error
+        }
+    }
+    
+    public static boolean updateBookCopyStatus(int copyId, String status) {
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            String query = "UPDATE Book_Copy SET status = ? WHERE copy_id = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(query)) {
+                stmt.setString(1, status);
+                stmt.setInt(2, copyId);
+                int rowsAffected = stmt.executeUpdate();
+                return rowsAffected > 0; // return true if the status was updated successfully
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false; // return false if there was an error
+        }
+    }
+    
+    
 }
 

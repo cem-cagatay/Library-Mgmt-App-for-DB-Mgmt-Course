@@ -85,7 +85,7 @@ public class BookDetailsPage extends JFrame {
 
                 // pass available copies to the next page
                 List<BookCopy> finalAvailableCopies = availableCopies;
-                seeCopiesButton.addActionListener(e -> new AvailableCopiesPage(finalAvailableCopies).setVisible(true));
+                seeCopiesButton.addActionListener(e -> new AvailableCopiesPage(finalAvailableCopies, member).setVisible(true));
                 buttonPanel.add(seeCopiesButton);
             }
         } catch (SQLException e) {
