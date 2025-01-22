@@ -115,6 +115,7 @@ public class BorrowBookPage extends JFrame {
                 boolean statusUpdated = DatabaseHandler.updateBookCopyStatus(bookCopy.getCopyId(), "Unavailable");
 
                 if (borrowSaved && statusUpdated) {
+                	member.invalidateBorrowedBooksCache(); // Invalidate the cache here
                     JOptionPane.showMessageDialog(
                             this,
                             "<html><div style='text-align: center;'>"

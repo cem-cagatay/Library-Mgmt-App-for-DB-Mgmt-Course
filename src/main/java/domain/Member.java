@@ -2,6 +2,8 @@ package domain;
 
 import java.util.List;
 
+import database.DatabaseHandler;
+
 public class Member {
     private int memberId;
     private String firstname;
@@ -10,6 +12,9 @@ public class Member {
     private String creditCardNumber; 
     private String billingAddress; // buyer attribute
     private List<BookCopy> borrowedBooks; // borrower attribute
+    private List<BookCopy> purchasedBooks; // borrower attribute
+    private boolean isBorrowedBooksCacheValid = false; // Cache validation flag
+    private boolean isPurchasedBooksCacheValid = false; // Cache validation flag
     
 	public Member(int memberId, String firstname, String lastName, String email) {
 		super();
@@ -61,11 +66,27 @@ public class Member {
     }
     
     public List<BookCopy> getBorrowedBooks() {
+        if (!isBorrowedBooksCacheValid) {
+            borrowedBooks = DatabaseHandler.getBorrowedBooks(this);
+            isBorrowedBooksCacheValid = true;
+        }
         return borrowedBooks;
     }
-    
+
     public List<BookCopy> getPurchasedBooks() {
-        return borrowedBooks;
+        if (!isPurchasedBooksCacheValid) {
+            purchasedBooks = DatabaseHandler.getPurchasedBooks(this);
+            isPurchasedBooksCacheValid = true;
+        }
+        return purchasedBooks;
+    }
+
+    public void invalidateBorrowedBooksCache() {
+        isBorrowedBooksCacheValid = false;
+    }
+
+    public void invalidatePurchasedBooksCache() {
+        isPurchasedBooksCacheValid = false;
     }
 
     public void borrowBook(BookCopy bookCopy) {

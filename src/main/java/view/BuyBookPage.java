@@ -112,6 +112,7 @@ public class BuyBookPage extends JFrame {
                 boolean statusUpdated = DatabaseHandler.updateBookCopyStatus(bookCopy.getCopyId(), "Unavailable");
 
                 if (memberUpdated && purchaseSaved && statusUpdated) {
+                	member.invalidatePurchasedBooksCache();
                     JOptionPane.showMessageDialog(
                             this,
                             "Purchase successful! Enjoy your new book.",

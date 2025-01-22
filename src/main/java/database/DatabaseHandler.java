@@ -1,6 +1,7 @@
 package database;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -340,7 +341,7 @@ public class DatabaseHandler {
     public static List<BookCopy> getBorrowedBooks(Member member) {
         List<BookCopy> borrowedBooks = new ArrayList<>();
         try (Connection conn = DatabaseConnection.getConnection()) {
-            String query = "SELECT bc.* FROM Borrows b JOIN Book_Copy bc ON b.copy_id = bc.copy_id WHERE b.member_id = ?";
+            String query = "SELECT bc.* FROM Borrows b JOIN Book_Copy bc ON b.copy_id = bc.copy_id WHERE b.member_id = ? AND bc.status = 'Unavailable'";
             try (PreparedStatement stmt = conn.prepareStatement(query)) {
                 stmt.setInt(1, member.getMemberId());
                 ResultSet rs = stmt.executeQuery();
@@ -375,7 +376,7 @@ public class DatabaseHandler {
                 ResultSet rs = stmt.executeQuery();
                 while (rs.next()) {
                     String bookId = rs.getString("book_id");
-                    Book book = getBookById(bookId); // Fetch the Book object
+                    Book book = getBookById(bookId); // fetch the Book object
                     if (book != null) {
                         purchasedBooks.add(new BookCopy(
                                 rs.getInt("copy_id"),
@@ -395,6 +396,31 @@ public class DatabaseHandler {
         return purchasedBooks;
     }
     
+    public static boolean returnBorrowedBook(Member member, BookCopy bookCopy) {
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            // Update Borrows table with return_date
+            String updateBorrowQuery = "UPDATE Borrows SET return_date = ? WHERE member_id = ? AND copy_id = ?";
+            try (PreparedStatement stmt1 = conn.prepareStatement(updateBorrowQuery)) {
+                stmt1.setDate(1, Date.valueOf(LocalDate.now()));
+                stmt1.setInt(2, member.getMemberId());
+                stmt1.setInt(3, bookCopy.getCopyId());
+                int borrowUpdateCount = stmt1.executeUpdate();
+
+                if (borrowUpdateCount > 0) {
+                    // Update Book_Copy table status to Available
+                    String updateBookCopyQuery = "UPDATE Book_Copy SET status = 'Available' WHERE copy_id = ?";
+                    try (PreparedStatement stmt2 = conn.prepareStatement(updateBookCopyQuery)) {
+                        stmt2.setInt(1, bookCopy.getCopyId());
+                        int bookUpdateCount = stmt2.executeUpdate();
+                        return bookUpdateCount > 0;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
     
 }
 
