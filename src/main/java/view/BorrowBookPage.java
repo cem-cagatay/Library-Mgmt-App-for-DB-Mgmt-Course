@@ -5,6 +5,7 @@ import java.awt.*;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.Locale;
 
 import com.toedter.calendar.JDateChooser;
 
@@ -58,7 +59,8 @@ public class BorrowBookPage extends JFrame {
 
         // Using JDateChooser for start date
         JDateChooser startDateChooser = new JDateChooser();
-        startDateChooser.setDateFormatString("yyyy-MM-dd"); // Set the format you prefer
+        startDateChooser.setDateFormatString("yyyy-MM-dd"); 
+        startDateChooser.setLocale(Locale.ENGLISH);
 
         // End Date label and field next to each other
         JLabel endDateLabel = new JLabel("Pick End Date:");
@@ -67,7 +69,8 @@ public class BorrowBookPage extends JFrame {
 
         // Using JDateChooser for end date
         JDateChooser endDateChooser = new JDateChooser();
-        endDateChooser.setDateFormatString("yyyy-MM-dd"); // Set the format you prefer
+        endDateChooser.setDateFormatString("yyyy-MM-dd"); 
+        endDateChooser.setLocale(Locale.ENGLISH);
 
         // Positioning components in GridBagLayout
         gbc.gridx = 0;  // First column

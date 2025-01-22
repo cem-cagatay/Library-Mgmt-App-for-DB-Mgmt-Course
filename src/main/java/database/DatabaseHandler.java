@@ -3,7 +3,10 @@ package database;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+
+import java.util.Map;
 
 import domain.Author;
 import domain.Book;
@@ -338,20 +341,34 @@ public class DatabaseHandler {
         }
     }
     
-    public static List<BookCopy> getBorrowedBooks(Member member) {
-        List<BookCopy> borrowedBooks = new ArrayList<>();
+    public static List<Borrow> getBorrowings(Member member) {
+        List<Borrow> borrowedBooks = new ArrayList<>();
         try (Connection conn = DatabaseConnection.getConnection()) {
-        	String query = "SELECT bc.* " +
-                    "FROM Book_Copy bc " +
-                    "JOIN Borrows b ON bc.copy_id = b.copy_id " +
-                    "WHERE b.member_id = ? " +
-                    "AND bc.status = 'Unavailable' " +
-                    "AND b.borrow_date = ( " +
-                    "    SELECT MAX(b2.borrow_date) " +
-                    "    FROM Borrows b2 " +
-                    "    WHERE b2.copy_id = b.copy_id " +
-                    "    AND b2.member_id = b.member_id " +
-                    ")";
+        	String query = 
+        		    "SELECT " +
+        		    "    b.copy_id, " +
+        		    "    b.borrow_date, " +
+        		    "    b.due_date, " +
+        		    "    b.return_date, " +
+        		    "    bc.book_id, " +
+        		    "    bc.status, " +
+        		    "    bc.price, " +
+        		    "    bc.floor_number, " +
+        		    "    bc.shelf_letter, " +
+        		    "    bc.shelf_number " +
+        		    "FROM " +
+        		    "    Borrows b " +
+        		    "JOIN " +
+        		    "    Book_Copy bc ON b.copy_id = bc.copy_id " +
+        		    "WHERE " +
+        		    "    b.member_id = ? " +
+        		    "    AND bc.status = 'Unavailable' " +
+        		    "    AND b.borrow_date = ( " +
+        		    "        SELECT MAX(b2.borrow_date) " +
+        		    "        FROM Borrows b2 " +
+        		    "        WHERE b2.copy_id = b.copy_id " +
+        		    "          AND b2.member_id = b.member_id " +
+        		    "    )";
             try (PreparedStatement stmt = conn.prepareStatement(query)) {
                 stmt.setInt(1, member.getMemberId());
                 ResultSet rs = stmt.executeQuery();
@@ -359,15 +376,29 @@ public class DatabaseHandler {
                     String bookId = rs.getString("book_id");
                     Book book = getBookById(bookId); // fetch the Book object
                     if (book != null) {
-                        borrowedBooks.add(new BookCopy(
-                                rs.getInt("copy_id"),
-                                book,
-                                rs.getString("status"),
-                                rs.getDouble("price"),
-                                rs.getInt("floor_number"),
-                                rs.getString("shelf_letter").charAt(0),
-                                rs.getInt("shelf_number")
-                        ));
+                        BookCopy bookCopy = new BookCopy(
+                            rs.getInt("copy_id"),
+                            book,
+                            rs.getString("status"),
+                            rs.getDouble("price"),
+                            rs.getInt("floor_number"),
+                            rs.getString("shelf_letter").charAt(0),
+                            rs.getInt("shelf_number")
+                        );
+
+                        Borrow borrow = new Borrow(
+                            member,
+                            bookCopy,
+                            rs.getDate("borrow_date").toLocalDate(),
+                            rs.getDate("due_date").toLocalDate()
+                        );
+
+                        // Set the return date if it exists
+                        if (rs.getDate("return_date") != null) {
+                            borrow.setReturnDate(rs.getDate("return_date").toLocalDate());
+                        }
+
+                        borrowedBooks.add(borrow);
                     }
                 }
             }
@@ -377,6 +408,7 @@ public class DatabaseHandler {
         return borrowedBooks;
     }
     
+   
     
     public static List<BookCopy> getPurchasedBooks(Member member) {
         List<BookCopy> purchasedBooks = new ArrayList<>();
@@ -407,21 +439,21 @@ public class DatabaseHandler {
         return purchasedBooks;
     }
     
-    public static boolean returnBorrowedBook(Member member, BookCopy bookCopy) {
+    public static boolean returnBorrowedBook(Member member, int bookCopyId) {
         try (Connection conn = DatabaseConnection.getConnection()) {
             // Update Borrows table with return_date
             String updateBorrowQuery = "UPDATE Borrows SET return_date = ? WHERE member_id = ? AND copy_id = ?";
             try (PreparedStatement stmt1 = conn.prepareStatement(updateBorrowQuery)) {
                 stmt1.setDate(1, Date.valueOf(LocalDate.now()));
                 stmt1.setInt(2, member.getMemberId());
-                stmt1.setInt(3, bookCopy.getCopyId());
+                stmt1.setInt(3, bookCopyId);
                 int borrowUpdateCount = stmt1.executeUpdate();
 
                 if (borrowUpdateCount > 0) {
                     // Update Book_Copy table status to Available
                     String updateBookCopyQuery = "UPDATE Book_Copy SET status = 'Available' WHERE copy_id = ?";
                     try (PreparedStatement stmt2 = conn.prepareStatement(updateBookCopyQuery)) {
-                        stmt2.setInt(1, bookCopy.getCopyId());
+                        stmt2.setInt(1, bookCopyId);
                         int bookUpdateCount = stmt2.executeUpdate();
                         return bookUpdateCount > 0;
                     }
@@ -431,6 +463,190 @@ public class DatabaseHandler {
             e.printStackTrace();
         }
         return false;
+    }
+    
+    public static List<String> getMostBorrowedAuthorsWithTotalBooks() {
+        List<String> result = new ArrayList<>();
+        String query = "SELECT " +
+                "CONCAT(a.first_name, ' ', a.last_name) AS author_name, " +
+                "COUNT(*) AS borrow_count, " +
+                "(SELECT COUNT(*) " +
+                " FROM Book b " +
+                " WHERE b.author_id = a.author_id) AS total_books " +
+                "FROM " +
+                "Author a " +
+                "JOIN Book b ON a.author_id = b.author_id " +
+                "JOIN Book_Copy bc ON b.book_id = bc.book_id " +
+                "JOIN Borrows br ON bc.copy_id = br.copy_id " +
+                "WHERE YEAR(br.borrow_date) = 2024 " +
+                "GROUP BY a.author_id, author_name " +
+                "ORDER BY borrow_count DESC " +
+                "LIMIT 5;";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                String authorName = rs.getString("author_name");
+                int borrowCount = rs.getInt("borrow_count");
+                int totalBooks = rs.getInt("total_books");
+                result.add(authorName + " - " + borrowCount + " borrows (" + totalBooks + " total books)");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+    
+    
+    public static List<Map<String, Object>> getOverdueBooks() {
+        List<Map<String, Object>> overdueBooks = new ArrayList<>();
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            String query = "SELECT " +
+                    "B.title AS book_title, " +
+                    "BC.copy_id AS copy_id, " +
+                    "M.name AS borrower_name, " +
+                    "M.lastname AS borrower_lastname, " +
+                    "Bo.borrow_date, " +
+                    "Bo.due_date, " +
+                    "CASE " +
+                    "WHEN Bo.due_date < CURDATE() THEN DATEDIFF(CURDATE(), Bo.due_date) " +
+                    "ELSE 0 " +
+                    "END AS days_overdue " +
+                    "FROM " +
+                    "Borrows Bo " +
+                    "JOIN Book_Copy BC ON Bo.copy_id = BC.copy_id " +
+                    "JOIN Book B ON BC.book_id = B.book_id " +
+                    "JOIN Members M ON Bo.member_id = M.member_id " +
+                    "WHERE Bo.return_date IS NULL " +
+                    "ORDER BY days_overdue DESC";
+
+            try (PreparedStatement stmt = conn.prepareStatement(query);
+                 ResultSet rs = stmt.executeQuery()) {
+
+                while (rs.next()) {
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("book_title", rs.getString("book_title"));
+                    row.put("copy_id", rs.getInt("copy_id"));
+                    row.put("borrower_name", rs.getString("borrower_name"));
+                    row.put("borrower_lastname", rs.getString("borrower_lastname"));
+                    row.put("borrow_date", rs.getDate("borrow_date"));
+                    row.put("due_date", rs.getDate("due_date"));
+                    row.put("days_overdue", rs.getInt("days_overdue"));
+
+                    overdueBooks.add(row);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return overdueBooks;
+    }
+    
+    public static List<Map<String, Object>> getTopBooksBySubject() {
+        List<Map<String, Object>> topBooks = new ArrayList<>();
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            String query = 
+                "WITH BookPopularity AS ( " +
+                "    SELECT bc.book_id, COUNT(bw.copy_id) AS borrow_count " +
+                "    FROM Borrows bw " +
+                "    JOIN Book_Copy bc ON bw.copy_id = bc.copy_id " +
+                "    GROUP BY bc.book_id " +
+                "), RankedBooks AS ( " +
+                "    SELECT b.subject, b.title, bp.book_id, " +
+                "           ROW_NUMBER() OVER (PARTITION BY b.subject ORDER BY bp.borrow_count DESC) AS ranking " +
+                "    FROM BookPopularity bp " +
+                "    JOIN Book b ON bp.book_id = b.book_id " +
+                "    WHERE b.subject IN ('textbooks', 'love', 'fiction') " +
+                "), TopBooks AS ( " +
+                "    SELECT subject, title, book_id FROM RankedBooks WHERE ranking <= 3 " +
+                ") " +
+                "SELECT tb.subject, tb.title AS book_title, bc.copy_id, " +
+                "       CONCAT('Floor ', bc.floor_number, ', Shelf ', bc.shelf_letter, bc.shelf_number) AS location, " +
+                "       (SELECT COUNT(*) FROM Borrows WHERE copy_id = bc.copy_id) AS times_borrowed " +
+                "FROM TopBooks tb " +
+                "JOIN Book_Copy bc ON tb.book_id = bc.book_id " +
+                "ORDER BY tb.subject, tb.title";
+
+            try (PreparedStatement stmt = conn.prepareStatement(query);
+                 ResultSet rs = stmt.executeQuery()) {
+
+                while (rs.next()) {
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("subject", rs.getString("subject"));
+                    row.put("book_title", rs.getString("book_title"));
+                    row.put("copy_id", rs.getInt("copy_id"));
+                    row.put("location", rs.getString("location"));
+                    row.put("times_borrowed", rs.getInt("times_borrowed"));
+                    topBooks.add(row);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return topBooks;
+    }
+    
+    public static List<Map<String, Object>> getAuthorsByAverageBookPrice() {
+        List<Map<String, Object>> authorsData = new ArrayList<>();
+        String query = "SELECT " +
+                "A.author_id, " +
+                "A.first_name, " +
+                "A.last_name, " +
+                "AVG(BC.price) AS average_price " +
+                "FROM Author A " +
+                "JOIN Book B ON A.author_id = B.author_id " +
+                "JOIN Book_Copy BC ON B.book_id = BC.book_id " +
+                "GROUP BY A.author_id " +
+                "ORDER BY average_price DESC";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                Map<String, Object> row = new HashMap<>();
+                row.put("author_id", rs.getString("author_id"));
+                row.put("first_name", rs.getString("first_name"));
+                row.put("last_name", rs.getString("last_name"));
+                row.put("average_price", rs.getDouble("average_price"));
+                authorsData.add(row);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return authorsData;
+    }
+    
+    public static List<Map<String, Object>> getMembersWithHighSpending() {
+        List<Map<String, Object>> membersData = new ArrayList<>();
+        String query = "SELECT " +
+                "m.member_id, " +
+                "CONCAT(m.name, ' ', m.lastname) AS member_name, " +
+                "COALESCE(SUM(bc.price), 0) AS total_spending " +
+                "FROM Members m " +
+                "LEFT JOIN Buys b ON m.member_id = b.member_id " +
+                "LEFT JOIN Book_Copy bc ON b.copy_id = bc.copy_id " +
+                "GROUP BY m.member_id, m.name, m.lastname " +
+                "HAVING total_spending > 30 " +
+                "ORDER BY total_spending DESC";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                Map<String, Object> row = new HashMap<>();
+                row.put("member_id", rs.getInt("member_id"));
+                row.put("member_name", rs.getString("member_name"));
+                row.put("total_spending", rs.getDouble("total_spending"));
+                membersData.add(row);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return membersData;
     }
     
 }

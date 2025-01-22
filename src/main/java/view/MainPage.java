@@ -1,10 +1,15 @@
 package view;
 
 import javax.swing.*;
-import java.awt.*;
-import domain.Member;
-import view.SearchPage;
+import javax.swing.table.DefaultTableModel;
 
+import database.DatabaseHandler;
+
+import java.awt.*;
+import java.util.List;
+import java.util.Map;
+
+import domain.Member;
 
 public class MainPage extends JFrame {
 
@@ -49,60 +54,23 @@ public class MainPage extends JFrame {
         UIManager.put("TabbedPane.selected", new Color(100, 149, 237));
         UIManager.put("TabbedPane.unselectedBackground", Color.WHITE);
 
-        // Tab 1: Most Borrowed Authors
-        tabbedPane.addTab("Most Borrowed Authors", createAnalysisPanel(
+        // Tab 1: Most Borrowed Authors (Dynamic Query)
+        tabbedPane.addTab(" Pop. Authors", createDynamicAnalysisPanel( //
                 "Most Borrowed Authors",
-                new String[]{
-                        "1. J.K. Rowling - 50 borrows",
-                        "2. George Orwell - 45 borrows",
-                        "3. Harper Lee - 40 borrows",
-                        "4. F. Scott Fitzgerald - 38 borrows",
-                        "5. J.R.R. Tolkien - 35 borrows"
-                }));
+                DatabaseHandler.getMostBorrowedAuthorsWithTotalBooks()
+        ));
 
-        // Tab 2: Late Returns
-        tabbedPane.addTab("Late Returns", createAnalysisPanel(
-                "Books with the Most Late Returns",
-                new String[]{
-                        "1. The Great Gatsby - 10 late returns",
-                        "2. 1984 - 8 late returns",
-                        "3. To Kill a Mockingbird - 7 late returns",
-                        "4. Harry Potter and the Chamber of Secrets - 6 late returns",
-                        "5. Moby Dick - 5 late returns"
-                }));
+        // Tab 2: Books by Subject
+        tabbedPane.addTab("Books Not Return.", createOverdueBooksPanel()); //Books Not Return.
 
-        // Tab 3: Books by Subject
-        tabbedPane.addTab("Books by Subject", createAnalysisPanel(
-                "Books by Subject",
-                new String[]{
-                        "1. Fiction - 120 borrows",
-                        "2. Mystery - 90 borrows",
-                        "3. Science - 80 borrows",
-                        "4. History - 75 borrows",
-                        "5. Fantasy - 70 borrows"
-                }));
-
-        // Tab 4: Top Borrowers
-        tabbedPane.addTab("Top Borrowers", createAnalysisPanel(
-                "Top Borrowers",
-                new String[]{
-                        "1. Alice Johnson - 20 books",
-                        "2. Bob Smith - 18 books",
-                        "3. Charlie Brown - 15 books",
-                        "4. Diana Prince - 12 books",
-                        "5. Ethan Hunt - 10 books"
-                }));
-
-        // Tab 5: Popular Book Copies
-        tabbedPane.addTab("Popular Book Copies", createAnalysisPanel(
-                "Popular Book Copies",
-                new String[]{
-                        "1. Copy 101 - 25 borrows",
-                        "2. Copy 102 - 20 borrows",
-                        "3. Copy 103 - 18 borrows",
-                        "4. Copy 104 - 15 borrows",
-                        "5. Copy 105 - 10 borrows"
-                }));
+        // Tab 3: Top Books By Subject
+        tabbedPane.addTab("Top Books by Subj.", createTopBooksPanel()); //Top Books by Subj.
+        
+        // Tab 4: Authors by Avg. Book Price
+        tabbedPane.addTab("Authors by Avg. Pr.", createAuthorsByAveragePricePanel()); // Authors by Avg. Pr.
+        
+        // Tab 5: High Spending Members        
+        tabbedPane.addTab("Top Spending Memb.", createHighSpendingMembersPanel()); // Top Spending Memb.
 
         splitPane.setTopComponent(tabbedPane);
 
@@ -133,7 +101,7 @@ public class MainPage extends JFrame {
         // Button Panel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         buttonPanel.setOpaque(false);
-        
+
         JButton myBooksButton = new JButton("My Books");
         myBooksButton.setFont(new Font("Arial", Font.BOLD, 14));
         myBooksButton.setBackground(Color.WHITE);
@@ -185,7 +153,7 @@ public class MainPage extends JFrame {
         setVisible(true);
     }
 
-    private JPanel createAnalysisPanel(String title, String[] data) {
+    private JPanel createDynamicAnalysisPanel(String title, List<String> data) {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Color.WHITE);
 
@@ -193,10 +161,149 @@ public class MainPage extends JFrame {
         titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
         panel.add(titleLabel, BorderLayout.NORTH);
 
-        JList<String> list = new JList<>(data);
+        DefaultListModel<String> model = new DefaultListModel<>();
+        for (String entry : data) {
+            model.addElement(entry);
+        }
+
+        JList<String> list = new JList<>(model);
         list.setFont(new Font("Arial", Font.PLAIN, 16));
         panel.add(new JScrollPane(list), BorderLayout.CENTER);
 
         return panel;
     }
+    
+    private JPanel createOverdueBooksPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        JLabel titleLabel = new JLabel("Books Not Returned", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        panel.add(titleLabel, BorderLayout.NORTH);
+
+        // Fetch overdue books from the database
+        List<Map<String, Object>> overdueBooks = DatabaseHandler.getOverdueBooks();
+
+        // Create a table model
+        String[] columnNames = {"Book Title", "Copy ID", "Borrower Name", "Borrow Date", "Due Date", "Days Overdue"};
+        DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
+
+        for (Map<String, Object> book : overdueBooks) {
+            tableModel.addRow(new Object[]{
+                book.get("book_title"),
+                book.get("copy_id"),
+                book.get("borrower_name") + " " + book.get("borrower_lastname"),
+                book.get("borrow_date"),
+                book.get("due_date"),
+                book.get("days_overdue")
+            });
+        }
+
+        JTable table = new JTable(tableModel);
+        table.setFont(new Font("Arial", Font.PLAIN, 14));
+        table.setRowHeight(20);
+
+        panel.add(new JScrollPane(table), BorderLayout.CENTER);
+        return panel;
+    }
+
+    private JPanel createTopBooksPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        JLabel titleLabel = new JLabel("Top Books by Subject", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        panel.add(titleLabel, BorderLayout.NORTH);
+
+        // Fetch top books from the database
+        List<Map<String, Object>> topBooks = DatabaseHandler.getTopBooksBySubject();
+
+        // Create a table model
+        String[] columnNames = {"Subject", "Book Title", "Copy ID", "Location", "Times Borrowed"};
+        DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
+
+        for (Map<String, Object> book : topBooks) {
+            tableModel.addRow(new Object[]{
+                book.get("subject"),
+                book.get("book_title"),
+                book.get("copy_id"),
+                book.get("location"),
+                book.get("times_borrowed")
+            });
+        }
+
+        JTable table = new JTable(tableModel);
+        table.setFont(new Font("Arial", Font.PLAIN, 14));
+        table.setRowHeight(20);
+
+        panel.add(new JScrollPane(table), BorderLayout.CENTER);
+        return panel;
+    }
+    
+    
+    private JPanel createAuthorsByAveragePricePanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        JLabel titleLabel = new JLabel("Authors by Average Price", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        panel.add(titleLabel, BorderLayout.NORTH);
+
+        // Fetch data from the database
+        List<Map<String, Object>> authorsData = DatabaseHandler.getAuthorsByAverageBookPrice();
+
+        // Create a table model
+        String[] columnNames = {"Author ID", "First Name", "Last Name", "Average Book Price"};
+        DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
+
+        for (Map<String, Object> author : authorsData) {
+            tableModel.addRow(new Object[]{
+                    author.get("author_id"),
+                    author.get("first_name"),
+                    author.get("last_name"),
+                    String.format("$%.2f", author.get("average_price"))
+            });
+        }
+
+        JTable table = new JTable(tableModel);
+        table.setFont(new Font("Arial", Font.PLAIN, 14));
+        table.setRowHeight(20);
+
+        panel.add(new JScrollPane(table), BorderLayout.CENTER);
+        return panel;
+    }
+    
+    private JPanel createHighSpendingMembersPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        JLabel titleLabel = new JLabel("High Spending Members (>$30)", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        panel.add(titleLabel, BorderLayout.NORTH);
+
+        // Fetch members with high spending from the database
+        List<Map<String, Object>> highSpendingMembers = DatabaseHandler.getMembersWithHighSpending();
+
+        // Create a table model
+        String[] columnNames = {"Member ID", "Member Name", "Total Spending"};
+        DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
+
+        for (Map<String, Object> member : highSpendingMembers) {
+            tableModel.addRow(new Object[]{
+                member.get("member_id"),
+                member.get("member_name"),
+                member.get("total_spending")
+            });
+        }
+
+        JTable table = new JTable(tableModel);
+        table.setFont(new Font("Arial", Font.PLAIN, 14));
+        table.setRowHeight(20);
+
+        panel.add(new JScrollPane(table), BorderLayout.CENTER);
+
+        return panel;
+    }
+    
+    
 }

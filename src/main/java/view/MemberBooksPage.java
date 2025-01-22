@@ -1,12 +1,17 @@
 package view;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Locale;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import domain.Member;
 import domain.BookCopy;
+import domain.Borrow;
 import database.DatabaseHandler;
 
 public class MemberBooksPage extends JFrame {
@@ -33,55 +38,6 @@ public class MemberBooksPage extends JFrame {
         // Bottom Buttons Panel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
 
-        // Return Button
-        JButton returnButton = new JButton("Return");
-        returnButton.setFont(new Font("Arial", Font.BOLD, 14));
-        returnButton.setBackground(Color.WHITE);
-
-        returnButton.addActionListener(e -> {
-            if (tabbedPane.getSelectedIndex() == 0) { // Borrowed Books Tab
-                JList<BookCopy> bookList = (JList<BookCopy>) ((JScrollPane) borrowedBooksPanel.getComponent(1)).getViewport().getView();
-                BookCopy selectedBook = bookList.getSelectedValue();
-                if (selectedBook == null) {
-                    JOptionPane.showMessageDialog(this, "Please select a book to return.");
-                } else {
-                    int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to return this book?", "Confirm Return", JOptionPane.YES_NO_OPTION);
-                    if (confirm == JOptionPane.YES_OPTION) {
-                        boolean returnSuccessful = DatabaseHandler.returnBorrowedBook(member, selectedBook);
-                        if (returnSuccessful) {
-                            JOptionPane.showMessageDialog(this, "Book returned successfully!");
-                            member.invalidateBorrowedBooksCache();
-                            ((DefaultListModel<BookCopy>) bookList.getModel()).removeElement(selectedBook);
-                        } else {
-                            JOptionPane.showMessageDialog(this, "Error returning book. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
-                        }
-                    }
-                }
-            }
-        });
-
-        // Back Button
-        JButton backButton = new JButton("Back");
-        backButton.setFont(new Font("Arial", Font.BOLD, 14));
-        backButton.setBackground(Color.WHITE);
-        backButton.addActionListener(e -> {
-            new MainPage(member).setVisible(true);
-            dispose();
-        });
-
-        buttonPanel.add(returnButton);
-        buttonPanel.add(backButton);
-        add(buttonPanel, BorderLayout.SOUTH);
-
-        // Tab change listener to show and hide the Return button
-        tabbedPane.addChangeListener(e -> {
-            if (tabbedPane.getSelectedIndex() == 0) { // Borrowed Books Tab
-                returnButton.setVisible(true);
-            } else { // Purchased Books Tab
-                returnButton.setVisible(false);
-            }
-        });
-
         setLocationRelativeTo(null);
         setVisible(true);
     }
@@ -94,27 +50,92 @@ public class MemberBooksPage extends JFrame {
         titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
         panel.add(titleLabel, BorderLayout.NORTH);
 
-        DefaultListModel<BookCopy> model = new DefaultListModel<>();
-        for (BookCopy bookCopy : member.getBorrowedBooks()) {
-            model.addElement(bookCopy);
+        // Table columns
+        String[] columnNames = {"Book Title", "Copy ID", "Due Date", "Status"};
+        DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
+
+        // Populate table with borrowed books data
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.ENGLISH); // dates are in English
+        for (Borrow borrow : member.getBorrowedBooks()) {
+            BookCopy bookCopy = borrow.getCopy();
+            LocalDate dueDate = borrow.getDueDate();
+            LocalDate now = LocalDate.now();
+            String status = dueDate.isBefore(now)
+                            ? String.format("%d days late", java.time.temporal.ChronoUnit.DAYS.between(dueDate, now))
+                            : "Not overdue";
+
+            tableModel.addRow(new Object[]{
+                bookCopy.getBook().getTitle(),
+                bookCopy.getCopyId(),
+                dueDate.format(formatter),
+                status
+            });
         }
 
-        JList<BookCopy> bookList = new JList<>(model);
-        bookList.setFont(new Font("Arial", Font.PLAIN, 14));
-        bookList.setCellRenderer(new DefaultListCellRenderer() {
-            @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                BookCopy bookCopy = (BookCopy) value;
-                String displayText = String.format("Book: %s | Copy ID: %d | Due Date: %s",
-                        bookCopy.getBook().getTitle(), bookCopy.getCopyId(), bookCopy.getStatus());
-                return super.getListCellRendererComponent(list, displayText, index, isSelected, cellHasFocus);
+        JTable table = new JTable(tableModel);
+        table.setFont(new Font("Arial", Font.PLAIN, 14));
+        table.setRowHeight(20);
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        // Add table to scroll pane
+        JScrollPane scrollPane = new JScrollPane(table);
+        panel.add(scrollPane, BorderLayout.CENTER);
+
+        // Add Return and Back buttons below the table
+        JButton returnButton = new JButton("Return");
+        returnButton.setFont(new Font("Arial", Font.BOLD, 14));
+        returnButton.setEnabled(false); // Initially disabled until a row is selected
+
+        JButton backButton = new JButton("Back");
+        backButton.setFont(new Font("Arial", Font.BOLD, 14));
+
+        // Add a row selection listener to enable the Return button
+        table.getSelectionModel().addListSelectionListener(event -> {
+            if (!event.getValueIsAdjusting() && table.getSelectedRow() != -1) {
+                returnButton.setEnabled(true);
             }
         });
 
-        panel.add(new JScrollPane(bookList), BorderLayout.CENTER);
+        // Add an action listener for the Return button
+        returnButton.addActionListener(e -> {
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow != -1) {
+                // Fetch the selected borrow details
+                String copyId = table.getValueAt(selectedRow, 1).toString();
+
+                // Logic to return the book
+                int confirm = JOptionPane.showConfirmDialog(panel, "Are you sure you want to return this book?", 
+                        "Confirm Return", JOptionPane.YES_NO_OPTION);
+
+                if (confirm == JOptionPane.YES_OPTION) {
+                    // Perform the return operation
+                    boolean returnSuccessful = DatabaseHandler.returnBorrowedBook(member, Integer.parseInt(copyId));
+                    if (returnSuccessful) {
+                        JOptionPane.showMessageDialog(panel, "Book returned successfully!");
+                        member.invalidateBorrowedBooksCache();
+                        ((DefaultTableModel) table.getModel()).removeRow(selectedRow);
+                    } else {
+                        JOptionPane.showMessageDialog(panel, "Error returning book. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            }
+        });
+
+        // Add an action listener for the Back button
+        backButton.addActionListener(e -> {
+            new MainPage(member).setVisible(true);
+            dispose();
+        });
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        buttonPanel.add(returnButton);
+        buttonPanel.add(backButton);
+
+        panel.add(buttonPanel, BorderLayout.SOUTH);
+
         return panel;
     }
-
+    
     private JPanel createPurchasedBooksPanel(Member member) {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -123,15 +144,39 @@ public class MemberBooksPage extends JFrame {
         titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
         panel.add(titleLabel, BorderLayout.NORTH);
 
-        DefaultListModel<String> model = new DefaultListModel<>();
+        // Table columns
+        String[] columnNames = {"Book Title", "Copy ID", "Price"};
+        DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
+
+        // Populate table with purchased books data
         for (BookCopy bookCopy : member.getPurchasedBooks()) {
-            model.addElement(String.format("Book: %s | Copy ID: %d | Price: %.2f",
-                    bookCopy.getBook().getTitle(), bookCopy.getCopyId(), bookCopy.getPrice()));
+            tableModel.addRow(new Object[]{
+                bookCopy.getBook().getTitle(),
+                bookCopy.getCopyId(),
+                String.format("%.2f", bookCopy.getPrice())
+            });
         }
 
-        JList<String> bookList = new JList<>(model);
-        bookList.setFont(new Font("Arial", Font.PLAIN, 14));
-        panel.add(new JScrollPane(bookList), BorderLayout.CENTER);
+        JTable table = new JTable(tableModel);
+        table.setFont(new Font("Arial", Font.PLAIN, 14));
+        table.setRowHeight(20);
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        // Add scroll pane to table
+        panel.add(new JScrollPane(table), BorderLayout.CENTER);
+        
+        // Add an action listener for the Back button
+        JButton backButton = new JButton("Back");
+        backButton.setFont(new Font("Arial", Font.BOLD, 14));
+        backButton.addActionListener(e -> {
+            new MainPage(member).setVisible(true);
+            dispose();
+        });
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        buttonPanel.add(backButton);
+
+        panel.add(buttonPanel, BorderLayout.SOUTH);
 
         return panel;
     }

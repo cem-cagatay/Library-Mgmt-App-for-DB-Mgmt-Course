@@ -11,7 +11,7 @@ public class Member {
     private String email;
     private String creditCardNumber; 
     private String billingAddress; // buyer attribute
-    private List<BookCopy> borrowedBooks; // borrower attribute
+    private List<Borrow> borrowedBooks; // borrower attribute
     private List<BookCopy> purchasedBooks; // borrower attribute
     private boolean isBorrowedBooksCacheValid = false; // Cache validation flag
     private boolean isPurchasedBooksCacheValid = false; // Cache validation flag
@@ -65,9 +65,9 @@ public class Member {
         this.billingAddress = billingAddress;
     }
     
-    public List<BookCopy> getBorrowedBooks() {
+    public List<Borrow> getBorrowedBooks() {
         if (!isBorrowedBooksCacheValid) {
-            borrowedBooks = DatabaseHandler.getBorrowedBooks(this);
+            borrowedBooks = DatabaseHandler.getBorrowings(this);
             isBorrowedBooksCacheValid = true;
         }
         return borrowedBooks;
@@ -89,8 +89,8 @@ public class Member {
         isPurchasedBooksCacheValid = false;
     }
 
-    public void borrowBook(BookCopy bookCopy) {
-        borrowedBooks.add(bookCopy);
+    public void borrowBook(Borrow borrow) {
+        borrowedBooks.add(borrow);
     }
 
     public void returnBook(BookCopy bookCopy) {
