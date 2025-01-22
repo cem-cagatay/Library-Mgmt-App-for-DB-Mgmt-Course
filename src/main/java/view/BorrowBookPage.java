@@ -36,7 +36,7 @@ public class BorrowBookPage extends JFrame {
 
         // Motivation Label
         JLabel motivationLabel = new JLabel("<html><div style='text-align: center;'>"
-                + "<h2>You are borrowing \"" + bookCopy.getCopyId() + "\"!</h2>"
+                + "<h2>You are borrowing \"" + bookCopy.getBook().getTitle() + "\"!</h2>"
                 + "<p>Choose the borrowing period to proceed.</p>"
                 + "</div></html>", SwingConstants.CENTER);
         motivationLabel.setFont(new Font("Arial", Font.PLAIN, 14));

@@ -31,7 +31,7 @@ public class BuyBookPage extends JFrame {
 
         // Motivation Label
         JLabel motivationLabel = new JLabel("<html><div style='text-align: center;'>"
-                + "<h2>You're about to own Copy ID: " + bookCopy.getCopyId() + "!</h2>"
+                + "<h2>You're about to own Copy ID: " + bookCopy.getBook().getTitle() + "!</h2>"
                 + "<p>Complete your purchase by entering your payment details.</p>"
                 + "</div></html>", SwingConstants.CENTER);
         motivationLabel.setFont(new Font("Arial", Font.PLAIN, 14));
