@@ -56,7 +56,7 @@ public class MainPage extends JFrame {
 
         // Tab 1: Most Borrowed Authors (Dynamic Query)
         tabbedPane.addTab(" Pop. Authors", createDynamicAnalysisPanel( //
-                "Most Borrowed Authors",
+                "Most Popular Authors Of The Year 2024 Based on Borrowings",
                 DatabaseHandler.getMostBorrowedAuthorsWithTotalBooks()
         ));
 
@@ -177,7 +177,7 @@ public class MainPage extends JFrame {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        JLabel titleLabel = new JLabel("Books Not Returned", SwingConstants.CENTER);
+        JLabel titleLabel = new JLabel("Books Not Returned Yet", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
         panel.add(titleLabel, BorderLayout.NORTH);
 
@@ -211,7 +211,7 @@ public class MainPage extends JFrame {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        JLabel titleLabel = new JLabel("Top Books by Subject", SwingConstants.CENTER);
+        JLabel titleLabel = new JLabel("Locations Of The 3 Most Popular Books Of Each Subject", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
         panel.add(titleLabel, BorderLayout.NORTH);
 
@@ -245,7 +245,7 @@ public class MainPage extends JFrame {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        JLabel titleLabel = new JLabel("Authors by Average Price", SwingConstants.CENTER);
+        JLabel titleLabel = new JLabel("Authors By Average Book Price", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
         panel.add(titleLabel, BorderLayout.NORTH);
 
@@ -277,7 +277,7 @@ public class MainPage extends JFrame {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        JLabel titleLabel = new JLabel("High Spending Members (>$30)", SwingConstants.CENTER);
+        JLabel titleLabel = new JLabel("Total Amount Of Spendings Of Each Member (> $30)", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
         panel.add(titleLabel, BorderLayout.NORTH);
 
