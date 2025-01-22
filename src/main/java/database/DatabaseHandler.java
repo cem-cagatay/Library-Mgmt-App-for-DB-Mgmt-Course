@@ -341,7 +341,17 @@ public class DatabaseHandler {
     public static List<BookCopy> getBorrowedBooks(Member member) {
         List<BookCopy> borrowedBooks = new ArrayList<>();
         try (Connection conn = DatabaseConnection.getConnection()) {
-            String query = "SELECT bc.* FROM Borrows b JOIN Book_Copy bc ON b.copy_id = bc.copy_id WHERE b.member_id = ? AND bc.status = 'Unavailable'";
+        	String query = "SELECT bc.* " +
+                    "FROM Book_Copy bc " +
+                    "JOIN Borrows b ON bc.copy_id = b.copy_id " +
+                    "WHERE b.member_id = ? " +
+                    "AND bc.status = 'Unavailable' " +
+                    "AND b.borrow_date = ( " +
+                    "    SELECT MAX(b2.borrow_date) " +
+                    "    FROM Borrows b2 " +
+                    "    WHERE b2.copy_id = b.copy_id " +
+                    "    AND b2.member_id = b.member_id " +
+                    ")";
             try (PreparedStatement stmt = conn.prepareStatement(query)) {
                 stmt.setInt(1, member.getMemberId());
                 ResultSet rs = stmt.executeQuery();
@@ -366,6 +376,7 @@ public class DatabaseHandler {
         }
         return borrowedBooks;
     }
+    
     
     public static List<BookCopy> getPurchasedBooks(Member member) {
         List<BookCopy> purchasedBooks = new ArrayList<>();
