@@ -1,6 +1,8 @@
 package main;
 
 import org.json.JSONArray;
+
+
 import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -11,6 +13,8 @@ import java.sql.SQLException;
 
 import database.DatabaseConnection;
 import database.DatabaseHandler;
+
+//DO NOT RUN THIS CODE AGAIN. THIS CLASS WAS USED FOR POPULATING THE DATA.
 
 public class OpenLibraryToDB {
 
