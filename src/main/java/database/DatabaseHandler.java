@@ -166,14 +166,14 @@ public class DatabaseHandler {
         String authorId = rs.getString("author_id");
         int publishYear = rs.getInt("publish_year");
         String subject = rs.getString("subject");
-        Author author = getAuthor(authorId);
+        Author author = getAuthorById(authorId);
 
         // Create and return Book object
         return new Book(bookId, author, publishYear, title,  subject);
     }
 
     // Helper method to get the Author object from authorId
-    private static Author getAuthor(String authorId) throws SQLException {
+    private static Author getAuthorById(String authorId) throws SQLException {
         String query = "SELECT * FROM Author WHERE author_id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -184,6 +184,30 @@ public class DatabaseHandler {
             }
         }
         return null; // return null if author not found
+    }
+    
+    
+    public static Book getBookById(String bookId) {
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            String query = "SELECT * FROM Book WHERE book_id = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(query)) {
+                stmt.setString(1, bookId);
+                ResultSet rs = stmt.executeQuery();
+                if (rs.next()) {
+                    Author author = getAuthorById(rs.getString("author_id")); // fetch the Author
+                    return new Book(
+                            rs.getString("book_id"),
+                            author,
+                            rs.getInt("publish_year"),
+                            rs.getString("title"),
+                            rs.getString("subject")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null; // return null if the book is not found
     }
     
     
@@ -253,7 +277,7 @@ public class DatabaseHandler {
         }
     }
 
- // Update billing address in the Buyer table and/or credit card number in the Members table
+ // update billing address in the Buyer table and/or credit card number in the Members table
     public static boolean updateMemberDetails(Member member) {
         try (Connection conn = DatabaseConnection.getConnection()) {
             conn.setAutoCommit(false); // Start transaction
@@ -311,6 +335,64 @@ public class DatabaseHandler {
             e.printStackTrace();
             return false; // return false if there was an error
         }
+    }
+    
+    public static List<BookCopy> getBorrowedBooks(Member member) {
+        List<BookCopy> borrowedBooks = new ArrayList<>();
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            String query = "SELECT bc.* FROM Borrows b JOIN Book_Copy bc ON b.copy_id = bc.copy_id WHERE b.member_id = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(query)) {
+                stmt.setInt(1, member.getMemberId());
+                ResultSet rs = stmt.executeQuery();
+                while (rs.next()) {
+                    String bookId = rs.getString("book_id");
+                    Book book = getBookById(bookId); // fetch the Book object
+                    if (book != null) {
+                        borrowedBooks.add(new BookCopy(
+                                rs.getInt("copy_id"),
+                                book,
+                                rs.getString("status"),
+                                rs.getDouble("price"),
+                                rs.getInt("floor_number"),
+                                rs.getString("shelf_letter").charAt(0),
+                                rs.getInt("shelf_number")
+                        ));
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return borrowedBooks;
+    }
+    
+    public static List<BookCopy> getPurchasedBooks(Member member) {
+        List<BookCopy> purchasedBooks = new ArrayList<>();
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            String query = "SELECT bc.* FROM Buys b JOIN Book_Copy bc ON b.copy_id = bc.copy_id WHERE b.member_id = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(query)) {
+                stmt.setInt(1, member.getMemberId());
+                ResultSet rs = stmt.executeQuery();
+                while (rs.next()) {
+                    String bookId = rs.getString("book_id");
+                    Book book = getBookById(bookId); // Fetch the Book object
+                    if (book != null) {
+                        purchasedBooks.add(new BookCopy(
+                                rs.getInt("copy_id"),
+                                book,
+                                rs.getString("status"),
+                                rs.getDouble("price"),
+                                rs.getInt("floor_number"),
+                                rs.getString("shelf_letter").charAt(0),
+                                rs.getInt("shelf_number")
+                        ));
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return purchasedBooks;
     }
     
     

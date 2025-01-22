@@ -133,6 +133,14 @@ public class MainPage extends JFrame {
         // Button Panel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         buttonPanel.setOpaque(false);
+        
+        JButton myBooksButton = new JButton("My Books");
+        myBooksButton.setFont(new Font("Arial", Font.BOLD, 14));
+        myBooksButton.setBackground(Color.WHITE);
+        myBooksButton.addActionListener(e -> {
+            new MemberBooksPage(member).setVisible(true);
+            dispose();
+        });
 
         JButton searchButton = new JButton("Search");
         searchButton.setFont(new Font("Arial", Font.BOLD, 14));
@@ -150,6 +158,7 @@ public class MainPage extends JFrame {
             dispose();
         });
 
+        buttonPanel.add(myBooksButton);
         buttonPanel.add(searchButton);
         buttonPanel.add(logoutButton);
         footerPanel.add(buttonPanel, BorderLayout.NORTH);
