@@ -49,7 +49,7 @@ The system uses a **normalized relational schema** to ensure consistency and sca
 Below are examples of advanced queries used in the project:
 <details>
 <summary>1. Most Popular Authors of 2024</summary>
-
+```sql
 SELECT  
     a.author_id, 
     CONCAT(a.first_name, ' ', a.last_name) AS author_name, 
@@ -65,11 +65,11 @@ WHERE YEAR(br.borrow_date) = 2024
 GROUP BY a.author_id, author_name 
 ORDER BY borrow_count DESC 
 LIMIT 5;
-</details> 
+</details> ```
 
 <details> 
 <summary>2. Books Not Returned Yet</summary>
-
+```sql
 SELECT  
     B.title AS book_title, 
     BC.copy_id AS copy_id, 
@@ -87,11 +87,11 @@ JOIN Book B ON BC.book_id = B.book_id
 JOIN Members M ON Bo.member_id = M.member_id 
 WHERE Bo.return_date IS NULL 
 ORDER BY days_overdue DESC;
-</details>
+</details>```
 
 <details> 
 <summary>3. Locations of Top 3 Books Per Subject</summary>
-
+```sql
 WITH BookPopularity AS ( 
     SELECT bc.book_id, COUNT(bw.copy_id) AS borrow_count
     FROM Borrows bw 
@@ -113,4 +113,4 @@ JOIN Book_Copy bc ON tb.book_id = bc.book_id
 WHERE ranking <= 3
 ORDER BY tb.subject, tb.title;
 </details>
-
+```
