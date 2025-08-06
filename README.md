@@ -39,7 +39,7 @@ The system uses a **normalized relational schema** to ensure consistency and sca
 - Includes **billing information** for buyers and **fine tracking** for borrowers
 
 ### Entity-Relationship Diagram
-![ER Diagram](./assets/er-diagram.png)
+![ER Diagram](./assets/er_diagram.png)
 
 
 ---
